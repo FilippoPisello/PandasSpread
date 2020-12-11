@@ -9,6 +9,7 @@
   - [3.2. Attributes](#32-attributes)
   - [3.3. Properties](#33-properties)
   - [3.4. Methods](#34-methods)
+    - [3.4.1. Column](#341-column)
 - [4. Roadmap for future developments](#4-roadmap-for-future-developments)
 
 # 1. Overview
@@ -47,8 +48,9 @@ Concerning columns and rows:
 - **Row number**: the number used in the spreadsheet system to uniquely identify the rows. The top row has number 1.
 
 # 2. Required packages
-This class relies on the following built-in package:
+This class relies on the following built-in packages:
 - **string**
+- **typing**
 
 And on the following additional packages:
 - **numpy**
@@ -59,13 +61,13 @@ And on the following additional packages:
 The class intakes five arguments:
 - **dataframe** : pandas data frame object (mandatory)
   - The pandas data frame to be considered.
-- **keep_index** : Bool
+- **keep_index** : Bool, default=False
   - If True, it is taken into account that the first column of the spreadsheet will be occupied by the index. All the dimensions will be adjusted as consequence.
-- **skip_rows**: int
+- **skip_rows**: int, default=0
   - The number of rows which should be left empty at the top of the spreadsheet. Referring to excel row numbering, the table content starts at skip_rows + 1. If 0, content starts at row 1.
-- **skip_cols**: int
+- **skip_cols**: int, default=0
   - The number of columns which should be left empty at the left of the spreadsheet. Referring to excel column labelling, the table content starts at letter with index skip_cols. If 0, content starts at column "A".
-- **correct_lists**: Bool
+- **correct_lists**: Bool, default=False
   - If True, the lists stored as the data frame entries are modified to be more readable in the traditional spreadsheet softwares. This happens in four ways. (1) Empty lists are replaced by missing values. (2) Missing values are removed from within the lists. (3) Lists of len 1 are replaced by the single element they contain. (4) Lists are replaced by str formed by their elements separated by commas.
 
 ## 3.2. Attributes
@@ -99,12 +101,51 @@ The spreadsheet object has eight properties:
 These can be found in tier 1.1 in the code base.
 
 ## 3.4. Methods
-Coming soon
+This section just includes the methods which are meant to be accessed by the user, thus of tier 1.2. For further info on the methods of lower tier, please consult the docstrings.
+
+### 3.4.1. Column
+Returns list of cells making up a column.
+
+The column can be identified using its numeric index, its spreadsheet letter or its label. Multiple columns can be accessed as well.
+
+Note that when evaluating a bit of a str key, the match with the spreadsheet letters is carried out if no match is found with column names. This implies that if "A" is passed and a column named "A" exists, then the program will match the key with that column, regardless of its spreadsheet letter. In cases where one wants to refer to columns named as spreadsheet letters, index or column label should be used as key.
+
+**Arguments**
+- **key**: int, str, list, tuple
+
+  It is used to identify the column(s) whose cells should be returned.
+  - Single column index can be passed as int (ex: 1)
+  - Multiple column index can be passed as list/tuple of int (ex: [1, 2])
+  - Single spreadsheet column letter can be passed as str (ex: "A")
+  - Multiple spreadsheet column letters can be passed as list/tuple of str (ex: ["A", "B"]). Alternatively, they can be passed as str being comma separated "A, B".
+  - A range of spreadsheet columns can be passed as str with the first and last letter divided by a colon ("A:C"). Inclusive on both sides.
+  - Commas and colons can be combined as well ("A,C:E")
+  - The last three options apply in the same way to column labels. (ex: "Foo")(ex: ["Foo", "Bar"]) (ex: "Foo, Bar") (ex: "Foo:Bar")
+- **include_header**: Bool, default=False
+
+  It specifies whether the cells making up the column's header should be included or not. If False, it only returns the cells containing data for that column(s).
+
+**Examples**
+
+Consider the following table to be the pandas data frame passed in the constructor with all the parameters left to default values:
+|Foo|Bar|Baz|Qux|
+|---|---|---|---|
+|1|2|3|4|
+|5|6|7|8|
+The object spreadsheet is created.
+- spreadsheet.column("A", True) --> ["A1", "A2", "A3"]
+- spreadsheet.column("Foo", True) --> ["A1", "A2", "A3"]
+- spreadsheet.column(0, True) --> ["A1", "A2", "A3"]
+- spreadsheet.column("A", False) --> ["A2", "A3"]
+- spreadsheet.column("A, C", False) --> ["A2", "A3", "C2", "C3"]
+- spreadsheet.column(["A", "C"], False) --> ["A2", "A3", "C2", "C3"]
+- spreadsheet.column("A:C", False) --> ["A2", "A3", "B2", "B3", "C2", "C3"]
+- spreadsheet.column("Foo:Baz", False) --> ["A2", "A3", "B2", "B3", "C2", "C3"]
+- spreadsheet.column([0, 3], False) --> ["A2", "A3", "D2", "D3"]
+
 
 # 4. Roadmap for future developments
 The following features are planned to be added soon to the class:
-- **Select column method**:
-  - This method should allow the user to insert the key of a column and obtain the set of cells belonging to it. The key parameter should accept different formats. In this sense, it is used as a reference the _"usecols"_ parameter of the data frame method read_excel from pandas.
 - **Select row method**:
   - This method should be the equivalent of the one described above, for rows.
 
