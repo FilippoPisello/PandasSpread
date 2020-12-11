@@ -132,6 +132,7 @@ Consider the following table to be the pandas data frame passed in the construct
 |---|---|---|---|
 |1|2|3|4|
 |5|6|7|8|
+
 The object spreadsheet is created.
 - spreadsheet.column("A", True) --> ["A1", "A2", "A3"]
 - spreadsheet.column("Foo", True) --> ["A1", "A2", "A3"]
