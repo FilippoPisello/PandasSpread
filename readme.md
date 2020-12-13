@@ -10,7 +10,10 @@
   - [3.3. Properties](#33-properties)
   - [3.4. Methods](#34-methods)
     - [3.4.1. Column](#341-column)
+    - [3.4.2. Row](#342-row)
 - [4. Roadmap for future developments](#4-roadmap-for-future-developments)
+  - [4.1. Planned developments](#41-planned-developments)
+  - [4.2. Potential developments](#42-potential-developments)
 
 # 1. Overview
 The Spreadsheet class is meant to identify which cells of a spreadsheet would be occupied by a pandas data frame based on its dimensions. The correspondence is carried out for the whole data frame and its sub elements, like the header, index and body.
@@ -101,10 +104,10 @@ The spreadsheet object has eight properties:
 These can be found in tier 1.1 in the code base.
 
 ## 3.4. Methods
-This section just includes the methods which are meant to be accessed by the user, thus of tier 1.2. For further info on the methods of lower tier, please consult the docstrings.
+This section just includes the methods which are meant to be accessed by the user, thus of tier 1.2. For further info on the methods of lower tiers, please consult their docstrings.
 
 ### 3.4.1. Column
-Returns list of cells making up a column.
+Returns the list of cells making up a column in the form ["A1", "A2", ...].
 
 The column can be identified using its numeric index, its spreadsheet letter or its label. Multiple columns can be accessed as well.
 
@@ -118,7 +121,7 @@ Note that when evaluating a bit of a str key, the match with the spreadsheet let
   - Multiple column index can be passed as list/tuple of int (ex: [1, 2])
   - Single spreadsheet column letter can be passed as str (ex: "A")
   - Multiple spreadsheet column letters can be passed as list/tuple of str (ex: ["A", "B"]). Alternatively, they can be passed as str being comma separated "A, B".
-  - A range of spreadsheet columns can be passed as str with the first and last letter divided by a colon ("A:C"). Inclusive on both sides.
+  - A range of spreadsheet columns can be passed as str with the first and last letter divided by a colon ("A:C"). This range is inclusive on both sides.
   - Commas and colons can be combined as well ("A,C:E")
   - The last three options apply in the same way to column labels. (ex: "Foo")(ex: ["Foo", "Bar"]) (ex: "Foo, Bar") (ex: "Foo:Bar")
 - **include_header**: Bool, default=False
@@ -144,12 +147,50 @@ The object spreadsheet is created.
 - spreadsheet.column("Foo:Baz", False) --> ["A2", "A3", "B2", "B3", "C2", "C3"]
 - spreadsheet.column([0, 3], False) --> ["A2", "A3", "D2", "D3"]
 
+### 3.4.2. Row
+Returns the list of cells making up a row in the form ["A1", "B1", ...].
+
+The row can be identified using its numeric index or its spreadsheet number, where row number = index + 1. It is possible to access multiple rows.
+
+**Arguments**
+- **key**: int, str, list, tuple
+
+  It is used to identify the row(s) whose cells should be returned.
+  - Single row index can be passed as int (ex: 1)
+  - Multiple row index can be passed as list/tuple of int (ex: [1, 2])
+  - Single spreadsheet row number can be passed as str (ex: "1")
+  - Multiple spreadsheet row numbers can be passed as list/tuple of str (ex: ["1", "2"]). Alternatively, they can be passed as str being comma separated "1, 2"
+  - A range of row numbers can be passed as str with the first and last index divided by a colon ("1:3"). This range is inclusive on both sides.
+  - Commas and colons can be combined as well ("1,2:4")
+- **include_index**: Bool, default=False
+
+  It specifies whether the cells making up the column's index should be included or not. If False, it only returns the cells containing data for that row(s).
+
+**Examples**
+
+Consider the following table to be the pandas data frame passed in the constructor with all the parameters left to default values:
+|Foo|Bar|Baz|
+|---|---|---|
+|1|2|3|
+|5|6|7|
+|8|9|10|
+
+The object spreadsheet is created.
+- spreadsheet.row("2", True) --> ["A2", "B2", "C2", "D2"]
+- spreadsheet.row(1, True) --> ["A2", "B2", "C2", "D2"]
+- spreadsheet.row("2", False) --> ["A2", "B2", "C2"]
+- spreadsheet.row("2, 3", False) --> ["A2", "B2", "C2", "A3", "B3", "C3"]
+- spreadsheet.row(["2", "3"], False) --> ["A2", "B2", "C2", "A3", "B3", "C3"]
+- spreadsheet.row("2:3", False) --> ["A2", "B2", "C2", "A3", "B3", "C3"]
+- spreadsheet.row([1, 2], False) --> ["A2", "B2", "C2", "A3", "B3", "C3"]
 
 # 4. Roadmap for future developments
-The following features are planned to be added soon to the class:
-- **Select row method**:
-  - This method should be the equivalent of the one described above, for rows.
+## 4.1. Planned developments
+There are no developments planned for the near future. However, some minor cosmetic changes might be released soon:
+- Cleaning up the docstrings of the sub-methods which are quite long
+- Finding a better way to order the methods as the tier system is too strict and frail
 
+## 4.2. Potential developments
 The developments mentioned now are instead potential evolutions of the class which are not planned to be implemented in the immediate future:
 - **Clarification of the index role:**
   - At the moment, the behavior of the index can be considered unclear in case the user chooses _"False"_ for the class argument _"keep_index"_. What happens is that the real column index (in pandas _"df.index"_) is ignored, as it is supposed that it will not be included in the spreadsheet. Instead, _self.index_ will return the cells of the first column of the data frame. This is because it often happens in databases that the first column of the data frame contains the record keys.
