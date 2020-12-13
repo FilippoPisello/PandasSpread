@@ -267,7 +267,7 @@ class Spreadsheet:
                                                   [col_index, end_row]]))
         return cells
 
-    def row(self, key: Union[str, int, List, Tuple], include_index=False):
+    def row(self, key: Union[str, int, List, Tuple], include_index: bool=False):
         """
         Returns the set of cells contained in the row whose key is provided
 
@@ -323,8 +323,10 @@ class Spreadsheet:
         return cells
 
     # --------------------------------------------------------------------------
-    # 2 - Methods used as building blocks of tier 1 methods
+    # 2 - Worker methods
     # --------------------------------------------------------------------------
+    # 2.1 - Methods used in attributes
+    # --------------------------------
     @staticmethod
     def correct_lists_for_export(element):
         """
@@ -354,34 +356,33 @@ class Spreadsheet:
                     element = element.replace(character, "")
         return element
 
-    def rectangle_of_cells(self, coordinates_list: List[List]):
+    # --------------------------------
+    # 2.2 - Chain of methods used for the row/column methods in 1.2
+    # --------------------------------
+    @staticmethod
+    def input_as_list(input_, unwanted_type=None) -> Union[List, Tuple]:
         """
-        Returns the cells belonging to a rectangular portion of a spreadsheet.
+        Returns a list containing input, if input's type is not list or tuple.
+        Otherwise returns input.
 
-        ---------------
-        Returns a list containing pairs in the form "A1". These correspond to the
-        cells contained in a rectangular portion of spreadsheet delimited by a top
-        left corner cell and a bottom right corner cell.
+        ------------------
+        The function purpose is to return the user input enclosed in a list so
+        that one can loop through it. It is useful to handle later in a single
+        operation the cases where the user is allowed to provide one or more
+        items.
 
-        The coordinates provided must be in the form
-        [[TL_letter_position, TL_row],[BR_letter_position, BR_row]]
-        where TL stands for top left and BR for bottom right.
-
-        Example:
-        - If [[0,1],[1,2]] is provided, the output will be [A1, A2, B1, B2]
+        The function allows to raise an error in case the input matches one or
+        more types. In case multiple types want to be addressed, then a tuple
+        should be provided ex: (dict, float).
         """
-        starting_letter_pos, starting_number = coordinates_list[0]
-        ending_letter_pos, ending_number = coordinates_list[1]
-
-        output_list = []
-        increasing_number = starting_number
-        while starting_letter_pos <= ending_letter_pos:
-            while increasing_number <= ending_number:
-                output_list.append(self.letter_from_index(starting_letter_pos) + str(increasing_number))
-                increasing_number = increasing_number + 1
-            increasing_number = starting_number
-            starting_letter_pos = starting_letter_pos + 1
-        return output_list
+        # Raising error in case of unwanted type
+        if unwanted_type is not None:
+            if isinstance(input_, unwanted_type):
+                raise TypeError(f"The type of the this input {input_} is not accepted")
+        # Converting non list/tuple to list
+        if not isinstance(input_, (list, tuple)):
+            return [input_]
+        return input_
 
     def str_key_to_int(self, str_key: str, columns=True) -> List[int]:
         """
@@ -436,34 +437,6 @@ class Spreadsheet:
                 output.append(self.str_index_to_int(bit, columns))
         return output
 
-    @staticmethod
-    def input_as_list(input_, unwanted_type=None) -> Union[List, Tuple]:
-        """
-        Returns a list containing input, if input's type is not list or tuple.
-        Otherwise returns input.
-
-        ------------------
-        The function purpose is to return the user input enclosed in a list so
-        that one can loop through it. It is useful to handle later in a single
-        operation the cases where the user is allowed to provide one or more
-        items.
-
-        The function allows to raise an error in case the input matches one or
-        more types. In case multiple types want to be addressed, then a tuple
-        should be provided ex: (dict, float).
-        """
-        # Raising error in case of unwanted type
-        if unwanted_type is not None:
-            if isinstance(input_, unwanted_type):
-                raise TypeError(f"The type of the this input {input_} is not accepted")
-        # Converting non list/tuple to list
-        if not isinstance(input_, (list, tuple)):
-            return [input_]
-        return input_
-
-    # --------------------------------------------------------------------------
-    # 3 - Methods used as building blocks of tier 2 methods
-    # --------------------------------------------------------------------------
     def str_index_to_int(self, single_item_str: str, columns=True) -> int:
         """
         Returns an int given a str identifier for a spreadsheet column/row.
@@ -472,7 +445,7 @@ class Spreadsheet:
         The function intakes a str which is meant to identify a single
         spreadsheet column/row and returns the corresponding int index.
 
-        Column case
+        Column=True
         ----------
         The str can either be (1) the column label of the pandas dataframe or (2)
         the spreadsheet column letter. The script prioritizes (1). Consider the
@@ -487,7 +460,7 @@ class Spreadsheet:
         - "A" -> 1
         - "B" -> 1
 
-        Row case
+        Column=False
         ----------
         The str represents the spreadsheet row number. It should then just be
         transformed to int.
@@ -514,6 +487,38 @@ class Spreadsheet:
             except ValueError as e:
                 msg = "The row key provided is not convertible to int: "
                 raise ValueError(msg + single_item_str) from e
+
+    # --------------------------------
+    # 2.3 - Methods used as building blocks in multiple parts of the class
+    # --------------------------------
+    def rectangle_of_cells(self, coordinates_list: List[List]):
+        """
+        Returns the cells belonging to a rectangular portion of a spreadsheet.
+
+        ---------------
+        Returns a list containing pairs in the form "A1". These correspond to the
+        cells contained in a rectangular portion of spreadsheet delimited by a top
+        left corner cell and a bottom right corner cell.
+
+        The coordinates provided must be in the form
+        [[TL_letter_position, TL_row],[BR_letter_position, BR_row]]
+        where TL stands for top left and BR for bottom right.
+
+        Example:
+        - If [[0,1],[1,2]] is provided, the output will be [A1, A2, B1, B2]
+        """
+        starting_letter_pos, starting_number = coordinates_list[0]
+        ending_letter_pos, ending_number = coordinates_list[1]
+
+        output_list = []
+        increasing_number = starting_number
+        while starting_letter_pos <= ending_letter_pos:
+            while increasing_number <= ending_number:
+                output_list.append(self.letter_from_index(starting_letter_pos) + str(increasing_number))
+                increasing_number = increasing_number + 1
+            increasing_number = starting_number
+            starting_letter_pos = starting_letter_pos + 1
+        return output_list
 
     @staticmethod
     def letter_from_index(letter_position: int) -> str:
