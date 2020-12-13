@@ -49,8 +49,8 @@ class Spreadsheet:
         docstring.
     """
 
-    def __init__(self, dataframe, keep_index=False, skip_rows=0, skip_columns=0,
-                 correct_lists=False):
+    def __init__(self, dataframe: pd.DataFrame, keep_index: bool=False, skip_rows: int=0,
+                 skip_columns: int=0, correct_lists: bool=False):
         self.keep_index = keep_index
         self.df = dataframe
         self.skip_rows = skip_rows
@@ -205,7 +205,7 @@ class Spreadsheet:
     # 1.2 - Main methods
     # Methods which are designed and meant to be accessed by the user.
     # --------------------------------------------------------------------------
-    def column(self, key: Union[str, int, List, Tuple], include_header=False):
+    def column(self, key: Union[str, int, List, Tuple], include_header: bool=False):
         """
         Returns the set of cells contained in the column whose key is provided
 
@@ -215,8 +215,11 @@ class Spreadsheet:
         argument. It can be chosen whether to heave the corresponding header cell(s)
         included or not.
 
-        Note that when evaluating a bit of a str key, the match with the spreadsheet
-        letters is carried out if no match is found with column names. This implies
+        The key can either contain the column label, the column latter or its
+        index. Further info is provided in the arguments description.
+
+        When evaluating a bit of a str key, the match with the spreadsheet
+        letters has priority over the match with column names. This implies
         that if "A" is passed and a column named "A" exists, then the program will
         match the key with that column, regardless of its spreadsheet letter. In
         cases where one wants to refer to columns named as spreadsheet letters,
@@ -241,22 +244,82 @@ class Spreadsheet:
             be included or not. If False, it only returns the cells containing
             data for that column.
         """
-        if not isinstance(key, (list,tuple)):
-            key = [key]
+        key = self.input_as_list(key, unwanted_type=dict)
+
+        # From key to col index in int form
         int_index = []
         for element in key:
             if isinstance(element, str):
                 int_index.extend(self.str_key_to_int(element))
             elif isinstance(element, int):
                 int_index.append(element)
+
+        # From col index in int form to corresponding cells
         cells = []
+        # The starting and ending row do not depend on the columns chosen
+        top_row = self.indexes_depth[1] * (not include_header) + 1 + self.skip_rows
+        end_row = self.body_coordinates[1][1]
+        # Loop to populate the cells list
         for col_index in int_index:
-            if col_index > self.header_coordinates[1][0]:
-                raise KeyError("The column you are trying to access is out of index")
-            top_row = self.indexes_depth[1] * (not include_header) + 1 + self.skip_rows
-            end_row = self.body_coordinates[1][1]
+            if col_index > self.body_coordinates[1][0]:
+                raise KeyError("A column you are trying to access is out of index")
             cells.extend(self.rectangle_of_cells([[col_index, top_row],
                                                   [col_index, end_row]]))
+        return cells
+
+    def row(self, key: Union[str, int, List, Tuple], include_index=False):
+        """
+        Returns the set of cells contained in the row whose key is provided
+
+        ---------------
+        The function is designed to obtain the set of cells making up a row.
+        The row is identified through the information provided in the key
+        argument. It can be chosen whether to heave the corresponding index cell(s)
+        included or not, if it was chosen to keep the data frame index when the
+        spreadsheet object was constructed.
+
+        The key can either contain the spreadsheet row number or its absolute
+        index. Further info is provided in the arguments description. The row
+        number "1" corresponds to absolute index 0.
+
+        Arguments
+        ----------------
+        key: str/int/List/Tuple (mandatory)
+            The parameter used to identify the column. It is extremely flexible.
+            - Single column index can be passed as int (ex: 1)
+            - Multiple column index can be passed as list/tuple of int (ex: [1, 2])
+            - Single spreadsheet row index can be passed as str (ex: "1")
+            - Multiple spreadsheet row index can be passed as list/tuple of
+            str (ex: ["1", "2"]). Alternatively, they can be passed as str
+            being comma separated "1, 2".
+            - A range of spreadsheet rows can be passed as str with the first
+            and last index divided by a colon ("1:3"). Inclusive on both sides.
+        include_index: Bool, default=False
+            It specifies whether the cells making up the row's index should
+            be included or not. If False, it only returns the cells containing
+            data for that row.
+        """
+        key = self.input_as_list(key, unwanted_type=dict)
+
+        # From key to row index in int form
+        int_index = []
+        for element in key:
+            if isinstance(element, str):
+                int_index.extend(self.str_key_to_int(element, columns=False))
+            elif isinstance(element, int):
+                int_index.append(element + 1)
+
+        # From row index in int for to corresponding cells
+        cells = []
+        # The starting and ending col do not depend on the rows chosen
+        left_col = self.skip_cols + (self.indexes_depth[0] * (not include_index)) * self.keep_index
+        right_col = self.body_coordinates[1][0]
+        # Loop to populate the cells list
+        for row_index in int_index:
+            if row_index > self.body_coordinates[1][1]:
+                raise KeyError("A row you are trying to access is out of index")
+            cells.extend(self.rectangle_of_cells([[left_col, row_index],
+                                                  [right_col, row_index]]))
         return cells
 
     # --------------------------------------------------------------------------
@@ -320,35 +383,40 @@ class Spreadsheet:
             starting_letter_pos = starting_letter_pos + 1
         return output_list
 
-    def str_key_to_int(self, str_key: str) -> List[int]:
+    def str_key_to_int(self, str_key: str, columns=True) -> List[int]:
         """
-        Returns a list of integers given a string like column key. Ex: "A,B" -> [0, 1]
+        Returns a list of integers given a key of type str to individuate column(s)
+        or row(s).
 
         ------------------
         The function intakes a str which is meant to individuate one or more
-        spreadsheet columns. The columns can be identified either through
-        their label ("Foo") or through their spreadsheet letter ("A").
+        spreadsheet columns/rows. If the key should identify columns,
+        then the columns parameter should be left on True. For rows False.
 
-        In case multiple columns are passed, their references should be combined
+        In case multiple items are passed, their references should be combined
         either with commas or a colons. The comma should be used to separate
         distinct items as it happens in a list. A colon implies a range inclusive
         on both sides.
 
-        The spreadsheet letters are unpacked following the mentioned rules and
-        translated into indexes given the existing convertion criterion.
+        The columns can be identified either through their label ("Foo") or
+        through their spreadsheet letter ("A").
 
-        General example:
-        - "A" -> [0]
-        - "A, B" -> [0, 1]
-        - "A:C" -> [0, 1, 2]
-        - "A:C, E" -> [0, 1, 2, 4]
-        Example given the 2x3 df {"Foo": [1, 2], "Bar": [3, 4], "Fez": [5, 6]}:
+        The rows can be identified through the spreadsheet row number ("1").
+
+        Examples
+        -------
+        Consider the 2x3 dataframe {"Foo": [1, 2], "Bar": [3, 4], "Fez": [5, 6]}.
+        This is what the following keys return given columns=True:
         - "A" -> [0]
         - "Foo" -> [0]
         - "Foo, Bar" -> [0, 1]
         - "Foo, B" -> [0, 1]
         - "Foo:Fez" -> [0, 1, 2]
         - "Foo:C" -> [0, 1, 2]
+        This is what the following keys return given columns=False:
+        - "1" -> [0]
+        - "1,3" -> [0, 2]
+        - "1:3" -> [0, 1, 2]
         """
         # First the commas are handled. The str is dived in subelements.
         str_key = str_key.split(",")
@@ -358,31 +426,57 @@ class Spreadsheet:
             if bit.find(":") > -1:
                 bit = bit.split(":")
 
-                # Inputs of type "A:C:E" are not accepted
+                # Inputs of type "X:X:X" are not accepted
                 if len(bit) > 2:
                     raise ValueError("The column key cannot have two colons without a comma in between")
 
-                output.extend(range(self.str_index_to_int(bit[0].strip()),
-                                    self.str_index_to_int(bit[1].strip()) + 1))
+                output.extend(range(self.str_index_to_int(bit[0], columns),
+                                    self.str_index_to_int(bit[1], columns) + 1))
             else:
-                output.append(self.str_index_to_int(bit.strip()))
+                output.append(self.str_index_to_int(bit, columns))
         return output
+
+    @staticmethod
+    def input_as_list(input_, unwanted_type=None) -> Union[List, Tuple]:
+        """
+        Returns a list containing input, if input's type is not list or tuple.
+        Otherwise returns input.
+
+        ------------------
+        The function purpose is to return the user input enclosed in a list so
+        that one can loop through it. It is useful to handle later in a single
+        operation the cases where the user is allowed to provide one or more
+        items.
+
+        The function allows to raise an error in case the input matches one or
+        more types. In case multiple types want to be addressed, then a tuple
+        should be provided ex: (dict, float).
+        """
+        # Raising error in case of unwanted type
+        if unwanted_type is not None:
+            if isinstance(input_, unwanted_type):
+                raise TypeError(f"The type of the this input {input_} is not accepted")
+        # Converting non list/tuple to list
+        if not isinstance(input_, (list, tuple)):
+            return [input_]
+        return input_
 
     # --------------------------------------------------------------------------
     # 3 - Methods used as building blocks of tier 2 methods
     # --------------------------------------------------------------------------
-    def str_index_to_int(self, single_col_str: str) -> int:
+    def str_index_to_int(self, single_item_str: str, columns=True) -> int:
         """
-        Returns an int given a str identifier for a spreadsheet column. Ex: "A" -> 0
+        Returns an int given a str identifier for a spreadsheet column/row.
 
         ------------------
         The function intakes a str which is meant to identify a single
-        spreadsheet column and returns the corresponding int index. The str can
-        either be (1) the column label of the pandas dataframe or (2) the column
-        letter of the corresponding spreadsheet.
+        spreadsheet column/row and returns the corresponding int index.
 
-        Note that the script prioritizes (1). Consider the second set of examples
-        to understand the implication of this.
+        Column case
+        ----------
+        The str can either be (1) the column label of the pandas dataframe or (2)
+        the spreadsheet column letter. The script prioritizes (1). Consider the
+        second set of examples to understand the implication of this.
 
         Example given the 2x2 dataframe {"Foo" : [1, 2], "Bar" : [3, 4]}:
         - "Foo" -> 0
@@ -392,13 +486,34 @@ class Spreadsheet:
         Example given the 2x2 dataframe {"Foo" : [1, 2], "A" : [3, 4]}:
         - "A" -> 1
         - "B" -> 1
+
+        Row case
+        ----------
+        The str represents the spreadsheet row number. It should then just be
+        transformed to int.
+
+        Example:
+        - "1" -> 1
         """
-        # Tries first to see if the string appears in the column labels
-        try:
-            return self.df.columns.to_list().index(single_col_str)
-        # If fails it runs the conversion using col str
-        except ValueError:
-            return self.index_from_letter(single_col_str)
+        # Remove any unwanted spaces
+        single_item_str = single_item_str.strip()
+
+        # Case for index to be interpreted as column
+        if columns:
+            # Tries first to see if the string appears in the column labels
+            try:
+                return self.df.columns.to_list().index(single_item_str)
+            # If fails it runs the conversion using col str
+            except ValueError:
+                return self.index_from_letter(single_item_str)
+
+        # Case for index to be interpreted as row
+        else:
+            try:
+                return int(single_item_str)
+            except ValueError as e:
+                msg = "The row key provided is not convertible to int: "
+                raise ValueError(msg + single_item_str) from e
 
     @staticmethod
     def letter_from_index(letter_position: int) -> str:
