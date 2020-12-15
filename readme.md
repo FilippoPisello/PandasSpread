@@ -92,13 +92,13 @@ The spreadsheet object has eight properties:
   - The coordinates of the cells at the top left and bottom right of the body, described by a list containing two lists of int of lent two. Each of the sub-lists identifies a spreadsheet cell. The first number is the column index, while the second one is the row number.
 - **self.table_coordinates**: [[int, int], [int, int]]
   - The coordinates of the cells at the top left and bottom right of the table, described by a list containing two lists of int of lent two. Each of the sub-lists identifies a spreadsheet cell. The first number is the column index, while the second one is the row number.
-- **self.header_cells**: [str, ...]
+- **self.header**: [str, ...]
   - A list of str where each str is a cell belonging to the header. Each cell is a pair formed by the column letter and the row number, like "A1".
-- **self.index_cells**: [str, ...]
+- **self.index**: [str, ...]
   - A list of str where each str is a cell belonging to the index. Each cell is a pair formed by the column letter and the row number, like "A1".
-- **self.body_cell**: [str, ...]
+- **self.body**: [str, ...]
   - A list of str where each str is a cell belonging to the body. Each cell is a pair formed by the column letter and the row number, like "A1".
-- **self.table_cells**: [str, ...]
+- **self.table**: [str, ...]
   - A list of str where each str is a cell belonging to the table. Each cell is a pair formed by the column letter and the row number, like "A1".
 
 These can be found in tier 1.1 in the code base.

@@ -158,7 +158,7 @@ class Spreadsheet:
                 [self.header_coordinates[1][0], self.index_coordinates[1][1]]]
 
     @property
-    def header_cells(self):
+    def header(self):
         """
         Returns a list containing the names of the cells which constitute the header.
 
@@ -169,7 +169,7 @@ class Spreadsheet:
         return self.rectangle_of_cells(self.header_coordinates)
 
     @property
-    def index_cells(self):
+    def index(self):
         """
         Returns a list containing the names of the cells which constitute the index.
 
@@ -180,7 +180,7 @@ class Spreadsheet:
         return self.rectangle_of_cells(self.index_coordinates)
 
     @property
-    def body_cells(self):
+    def body(self):
         """
         Returns a list containing the names of the cells which constitute the body.
 
@@ -191,7 +191,7 @@ class Spreadsheet:
         return self.rectangle_of_cells(self.body_coordinates)
 
     @property
-    def table_cells(self):
+    def table(self):
         """
         Returns a list containing the names of the cells which constitute the table.
 
@@ -211,9 +211,8 @@ class Spreadsheet:
 
         ---------------
         The function is designed to obtain the set of cells making up a column.
-        The column is identified through the information provided in the key
-        argument. It can be chosen whether to heave the corresponding header cell(s)
-        included or not.
+        The column is identified through the the key argument. It can be chosen
+        whether to heave the corresponding header cell(s) included or not.
 
         The key can either contain the column label, the column latter or its
         index. Further info is provided in the arguments description.
@@ -222,8 +221,7 @@ class Spreadsheet:
         letters has priority over the match with column names. This implies
         that if "A" is passed and a column named "A" exists, then the program will
         match the key with that column, regardless of its spreadsheet letter. In
-        cases where one wants to refer to columns named as spreadsheet letters,
-        index or column label should be used as key.
+        a similar case index or column label should be used as key.
 
         Arguments
         ----------------
@@ -273,14 +271,13 @@ class Spreadsheet:
 
         ---------------
         The function is designed to obtain the set of cells making up a row.
-        The row is identified through the information provided in the key
-        argument. It can be chosen whether to heave the corresponding index cell(s)
-        included or not, if it was chosen to keep the data frame index when the
-        spreadsheet object was constructed.
+        The row is identified through the key argument. It can be chosen whether
+        to heave the corresponding index cell(s) included or not, if it was chosen
+        to keep the data frame index when the spreadsheet object was constructed.
 
         The key can either contain the spreadsheet row number or its absolute
-        index. Further info is provided in the arguments description. The row
-        number "1" corresponds to absolute index 0.
+        index. The row number "1" corresponds to absolute index 0. Further info
+        is provided in the arguments description.
 
         Arguments
         ----------------
@@ -366,14 +363,11 @@ class Spreadsheet:
         Otherwise returns input.
 
         ------------------
-        The function purpose is to return the user input enclosed in a list so
-        that one can loop through it. It is useful to handle later in a single
-        operation the cases where the user is allowed to provide one or more
-        items.
+        The function returns the input element enclosed in a list.
 
-        The function allows to raise an error in case the input matches one or
-        more types. In case multiple types want to be addressed, then a tuple
-        should be provided ex: (dict, float).
+        It allows to raise an error in case the input matches one or more types.
+        In case multiple types want to be excluded, then a tuple should be
+        provided ex: (dict, float).
         """
         # Raising error in case of unwanted type
         if unwanted_type is not None:
@@ -390,19 +384,15 @@ class Spreadsheet:
         or row(s).
 
         ------------------
-        The function intakes a str which is meant to individuate one or more
-        spreadsheet columns/rows. If the key should identify columns,
-        then the columns parameter should be left on True. For rows False.
+        Intakes a str which should individuate one or more spreadsheet columns/rows.
+        For columns, the parameter columns should be True. For rows False.
 
-        In case multiple items are passed, their references should be combined
-        either with commas or a colons. The comma should be used to separate
-        distinct items as it happens in a list. A colon implies a range inclusive
-        on both sides.
+        Multiple items should be chained either with commas, list of distinct
+        elements, or colons, range inclusive on both sides.
 
         The columns can be identified either through their label ("Foo") or
-        through their spreadsheet letter ("A").
-
-        The rows can be identified through the spreadsheet row number ("1").
+        through their spreadsheet letter ("A"). The rows can be identified through
+        the spreadsheet row number ("1").
 
         Examples
         -------
@@ -411,7 +401,6 @@ class Spreadsheet:
         - "A" -> [0]
         - "Foo" -> [0]
         - "Foo, Bar" -> [0, 1]
-        - "Foo, B" -> [0, 1]
         - "Foo:Fez" -> [0, 1, 2]
         - "Foo:C" -> [0, 1, 2]
         This is what the following keys return given columns=False:
@@ -462,8 +451,8 @@ class Spreadsheet:
 
         Column=False
         ----------
-        The str represents the spreadsheet row number. It should then just be
-        transformed to int.
+        The str represents the spreadsheet row number which is just transformed
+        to int.
 
         Example:
         - "1" -> 1
@@ -574,15 +563,15 @@ class Spreadsheet:
     # -------------------------------------------------------------------------
     def print_dimensions(self):
         print("Header coordinates:", self.header_coordinates)
-        print("Header cells:", self.header_cells)
+        print("Header cells:", self.header)
         print()
         print("Index coordinates:", self.index_coordinates)
-        print("Index cells:", self.index_cells)
+        print("Index cells:", self.index)
         print()
         print("Body coordinates:", self.body_coordinates)
-        print("Body cells:", self.body_cells)
+        print("Body cells:", self.body)
         print()
         print("Table coordinates:", self.table_coordinates)
-        print("Table cells:", self.table_cells)
+        print("Table cells:", self.table)
         print()
         print("Indexes depth:", self.indexes_depth)
