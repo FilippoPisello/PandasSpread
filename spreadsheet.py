@@ -45,8 +45,8 @@ class Spreadsheet:
         index skip_cols. If 0, content starts at column "A".
     correct_lists: Bool, default=False
         If True, the lists stored as the dataframe entries are modified to be more
-        readable in the traditional spreadsheet softwares. More details on dedicated
-        docstring.
+        readable in the traditional spreadsheet softwares. Type help(correct_lists_for_export)
+        for more details.
     """
 
     def __init__(self, dataframe: pd.DataFrame, keep_index: bool=False, skip_rows: int=0,
@@ -226,13 +226,13 @@ class Spreadsheet:
             be included or not. If False, it only returns the cells containing
             data for that column.
         """
-        key = self.input_as_list(key, unwanted_type=dict)
+        key = self._input_as_list(key, unwanted_type=dict)
 
         # From key to col index in int form
         int_index = []
         for element in key:
             if isinstance(element, str):
-                int_index.extend(self.str_key_to_int(element))
+                int_index.extend(self._str_key_to_int(element))
             elif isinstance(element, int):
                 int_index.append(element)
 
@@ -280,13 +280,13 @@ class Spreadsheet:
             be included or not. If False, it only returns the cells containing
             data for that row.
         """
-        key = self.input_as_list(key, unwanted_type=dict)
+        key = self._input_as_list(key, unwanted_type=dict)
 
         # From key to row index in int form
         int_index = []
         for element in key:
             if isinstance(element, str):
-                int_index.extend(self.str_key_to_int(element, columns=False))
+                int_index.extend(self._str_key_to_int(element, columns=False))
             elif isinstance(element, int):
                 int_index.append(element + 1)
 
@@ -341,7 +341,7 @@ class Spreadsheet:
     # 2.2 - Chain of methods used for the row/column methods in 1.2
     # --------------------------------
     @staticmethod
-    def input_as_list(input_, unwanted_type=None) -> Union[List, Tuple]:
+    def _input_as_list(input_, unwanted_type=None) -> Union[List, Tuple]:
         """
         Returns a list containing input, if input's type is not list or tuple.
         Otherwise returns input.
@@ -362,7 +362,7 @@ class Spreadsheet:
             return [input_]
         return input_
 
-    def str_key_to_int(self, str_key: str, columns=True) -> List[int]:
+    def _str_key_to_int(self, str_key: str, columns=True) -> List[int]:
         """
         Returns a list of integers given a key of type str to individuate column(s)
         or row(s).
@@ -404,13 +404,13 @@ class Spreadsheet:
                 if len(bit) > 2:
                     raise ValueError("The column key cannot have two colons without a comma in between")
 
-                output.extend(range(self.str_index_to_int(bit[0], columns),
-                                    self.str_index_to_int(bit[1], columns) + 1))
+                output.extend(range(self._str_index_to_int(bit[0], columns),
+                                    self._str_index_to_int(bit[1], columns) + 1))
             else:
-                output.append(self.str_index_to_int(bit, columns))
+                output.append(self._str_index_to_int(bit, columns))
         return output
 
-    def str_index_to_int(self, single_item_str: str, columns=True) -> int:
+    def _str_index_to_int(self, single_item_str: str, columns=True) -> int:
         """
         Returns an int given a str identifier for a spreadsheet column/row.
 
@@ -545,7 +545,10 @@ class Spreadsheet:
     # -------------------------------------------------------------------------
     # D - Methods useful for debugging
     # -------------------------------------------------------------------------
-    def print_dimensions(self):
+    def _print_dimensions(self):
+        """
+        Print the attributes and properties for debugging
+        """
         print("Header coordinates:", self.header_coordinates)
         print("Header cells:", self.header)
         print()
@@ -555,7 +558,6 @@ class Spreadsheet:
         print("Body coordinates:", self.body_coordinates)
         print("Body cells:", self.body)
         print()
-        print("Table coordinates:", self.table_coordinates)
         print("Table cells:", self.table)
         print()
         print("Indexes depth:", self.indexes_depth)
