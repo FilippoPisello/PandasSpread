@@ -32,17 +32,21 @@ The Spreadsheet class should serve as a shared base for the modules to export pa
 The logic behind this choice is that a pandas data frame occupies the same cells in a spreadsheet regardless of what the spreadsheet software is.
 
 ## 1.2. Code structure
-The code is designed to covey a hierarchical division of the class' methods, through a system of tiers. These tiers are introduced by comment blocks which are made of two compact lines of "#" having a number in between. The number represent the tier.
+The code is designed to convey a hierarchical division of the class' methods. Different code portions are introduced by comment blocks which are made of two compact lines of "#" having a number in between.
 
-The tiers are structured as follows:
-- **Tier 1.1**: class properties
-- **Tier 1.2**: class methods which are meant to be accessed by the user
-- **Tier 2**: methods used to built tier 1 methods
-- **Tier 3**: methods used to built tier 2 methods
-- ...and so on
+The sections are structured as follows:
+- **Part 1**: elements with external scope
+  - **Part 1.1**: class properties
+  - **Part 1.2**: main class methods. These are meant to be accessed by the user
+- **Part 2**: worker methods
+  - **Part 2.1**: methods used in attributes
+  - **Part 2.2**: chain of methods used for the row/column methods in 1.2
+  - **Part 2.3**: methods used as building blocks in multiple parts of the class
 - **Tier D**: methods useful for tests or debugging
 
-This structure should hopefully help the reader to understand how the simple pieces are assembled to construct more complex items. The individual methods are designed to follow as closely as possible the single-responsibility principle.
+The methods' are ordered so that if method B is invoked by method A, then B will be below A. This structure should hopefully help the reader to understand how the simple pieces are assembled to construct more complex items.
+
+The individual methods are designed to follow as closely as possible the single-responsibility principle.
 
 ## 1.3. Terminology
 Some terms should be unambiguously defined. Concerning the spreadsheet table elements:
