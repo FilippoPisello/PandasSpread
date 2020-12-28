@@ -139,25 +139,6 @@ class Spreadsheet:
                 [self.header_coordinates[1][0], self.index_coordinates[1][1]]]
 
     @property
-    def table_coordinates(self):
-        """
-        Finds the top left cell of the table and the bottom right one.
-
-        ---------------
-        The table is defined as the union of header, index and body.
-
-        It returns a list containing two lists of length two,each containing two numbers
-        which univocally identify a cell. The first number refers to the position
-        of the column to which the cell belongs, while the second one is the number of the row.
-        Examples:
-        - "A1" -> [0, 1]
-        - "Z3" -> [25, 3]
-        - "AA4" -> [26, 4]
-        """
-        return [[self.header_coordinates[0][0], self.header_coordinates[0][1]],
-                [self.header_coordinates[1][0], self.index_coordinates[1][1]]]
-
-    @property
     def header(self):
         """
         Returns a list containing the names of the cells which constitute the header.
@@ -199,7 +180,10 @@ class Spreadsheet:
         The form of the output is the following ["A1", "A2", "A3"]. The cells are
         inserted by row.
         """
-        return self.rectangle_of_cells(self.table_coordinates)
+        cells = self.header.extend(self.body)
+        if self.keep_index:
+            return cells.extend(self.index)
+        return cells
 
     # --------------------------------------------------------------------------
     # 1.2 - Main methods
