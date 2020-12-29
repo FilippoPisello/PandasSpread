@@ -9,8 +9,8 @@
   - [3.2. Attributes](#32-attributes)
   - [3.3. Properties](#33-properties)
   - [3.4. Methods](#34-methods)
-    - [3.4.1. Column](#341-column)
-    - [3.4.2. Row](#342-row)
+    - [3.4.1. column()](#341-column)
+    - [3.4.2. row()](#342-row)
 - [4. Roadmap for future developments](#4-roadmap-for-future-developments)
   - [4.1. Planned developments](#41-planned-developments)
   - [4.2. Potential developments](#42-potential-developments)
@@ -114,7 +114,7 @@ These can be found in tier 1.1 in the code base.
 ## 3.4. Methods
 This section just includes the methods which are meant to be accessed by the user, thus of tier 1.2. For further info on the methods of lower tiers, please consult their docstrings.
 
-### 3.4.1. Column
+### 3.4.1. column()
 Returns the list of cells making up a column in the form ["A1", "A2", ...].
 
 The column can be identified using its numeric index, its spreadsheet letter or its label. Multiple columns can be accessed as well.
@@ -155,7 +155,7 @@ The object spreadsheet is created.
 - spreadsheet.column("Foo:Baz", False) --> ["A2", "A3", "B2", "B3", "C2", "C3"]
 - spreadsheet.column([0, 3], False) --> ["A2", "A3", "D2", "D3"]
 
-### 3.4.2. Row
+### 3.4.2. row()
 Returns the list of cells making up a row in the form ["A1", "B1", ...].
 
 The row can be identified using its numeric index or its spreadsheet number, where row number = index + 1. It is possible to access multiple rows.
