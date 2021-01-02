@@ -478,20 +478,27 @@ class Spreadsheet:
         where TL stands for top left and BR for bottom right.
 
         Example:
-        - If [[0,1],[1,2]] is provided, the output will be [A1, A2, B1, B2]
+        - If [[0,1],[1,2]] is provided, the output will be [A1, B1, A2, B2]
         """
         starting_letter_pos, starting_number = coordinates_list[0]
         ending_letter_pos, ending_number = coordinates_list[1]
 
-        output_list = []
-        increasing_number = starting_number
-        while starting_letter_pos <= ending_letter_pos:
-            while increasing_number <= ending_number:
-                output_list.append(self.letter_from_index(starting_letter_pos) + str(increasing_number))
-                increasing_number = increasing_number + 1
-            increasing_number = starting_number
-            starting_letter_pos = starting_letter_pos + 1
-        return output_list
+        cells = []
+        increasing_letter_pos = starting_letter_pos
+
+        # Move vertically through each row (number)
+        while starting_number <= ending_number:
+
+            # Move horizontally through each column (letter)
+            while increasing_letter_pos <= ending_letter_pos:
+                cells.append(self.letter_from_index(increasing_letter_pos) + str(starting_number))
+                increasing_letter_pos = increasing_letter_pos + 1
+
+            # Reset column (letter) and move to next row (number)
+            increasing_letter_pos = starting_letter_pos
+            starting_number = starting_number + 1
+
+        return cells
 
     @staticmethod
     def letter_from_index(letter_position: int) -> str:
