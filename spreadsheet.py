@@ -483,20 +483,9 @@ class Spreadsheet:
         starting_letter_pos, starting_number = coordinates_list[0]
         ending_letter_pos, ending_number = coordinates_list[1]
 
-        cells = []
-        increasing_letter_pos = starting_letter_pos
-
-        # Move vertically through each row (number)
-        while starting_number <= ending_number:
-
-            # Move horizontally through each column (letter)
-            while increasing_letter_pos <= ending_letter_pos:
-                cells.append(self.letter_from_index(increasing_letter_pos) + str(starting_number))
-                increasing_letter_pos = increasing_letter_pos + 1
-
-            # Reset column (letter) and move to next row (number)
-            increasing_letter_pos = starting_letter_pos
-            starting_number = starting_number + 1
+        cells = [self.letter_from_index(letter) + str(number)
+                 for number in range(starting_number, ending_number + 1)
+                 for letter in range(starting_letter_pos, ending_letter_pos + 1)]
 
         return cells
 
