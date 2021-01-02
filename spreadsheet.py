@@ -147,7 +147,7 @@ class Spreadsheet:
         The form of the output is the following ["A1", "A2", "A3"]. The cells are
         inserted by row.
         """
-        return self.rectangle_of_cells(self.header_coordinates)
+        return self.cells_range(self.header_coordinates)
 
     @property
     def index(self):
@@ -158,7 +158,7 @@ class Spreadsheet:
         The form of the output is the following ["A1", "A2", "A3"]. The cells are
         inserted by row.
         """
-        return self.rectangle_of_cells(self.index_coordinates)
+        return self.cells_range(self.index_coordinates)
 
     @property
     def body(self):
@@ -169,7 +169,7 @@ class Spreadsheet:
         The form of the output is the following ["A1", "A2", "A3"]. The cells are
         inserted by row.
         """
-        return self.rectangle_of_cells(self.body_coordinates)
+        return self.cells_range(self.body_coordinates)
 
     @property
     def table(self):
@@ -245,7 +245,7 @@ class Spreadsheet:
         for col_index in int_index:
             if col_index > self.body_coordinates[1][0]:
                 raise KeyError("A column you are trying to access is out of index")
-            cells.extend(self.rectangle_of_cells([[col_index, top_row],
+            cells.extend(self.cells_range([[col_index, top_row],
                                                   [col_index, end_row]]))
         return cells
 
@@ -299,7 +299,7 @@ class Spreadsheet:
         for row_index in int_index:
             if row_index > self.body_coordinates[1][1]:
                 raise KeyError("A row you are trying to access is out of index")
-            cells.extend(self.rectangle_of_cells([[left_col, row_index],
+            cells.extend(self.cells_range([[left_col, row_index],
                                                   [right_col, row_index]]))
         return cells
 
@@ -464,7 +464,7 @@ class Spreadsheet:
     # --------------------------------
     # 2.3 - Methods used as building blocks in multiple parts of the class
     # --------------------------------
-    def rectangle_of_cells(self, coordinates_list: List[List]):
+    def cells_range(self, coordinates_list: List[List]):
         """
         Returns the cells belonging to a rectangular portion of a spreadsheet.
 
