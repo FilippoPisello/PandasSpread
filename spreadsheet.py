@@ -5,6 +5,8 @@ from typing import List, Union, Tuple
 import pandas as pd
 import numpy as np
 
+from spreadsheet_element import SpreadsheetElement
+
 class Spreadsheet:
     """
     Class to represent a pandas dataframe to be loaded into a spreadsheet.
@@ -104,13 +106,7 @@ class Spreadsheet:
         Finds the top left cell of the index and the bottom right one.
 
         ---------------
-        Returns a list containing two lists of length two, each containing two numbers
-        which univocally identify a cell. The first number refers to the position
-        of the column to which the cell belongs, while the second one is the number of the row.
-        Examples:
-        - "A1" -> [0, 1]
-        - "Z3" -> [25, 3]
-        - "AA4" -> [26, 4]
+        For more details refer to header_coordinates docstring
         """
         starting_letter_pos = self.skip_cols
         starting_number = self.indexes_depth[1] + 1 + self.skip_rows
@@ -124,66 +120,49 @@ class Spreadsheet:
         Finds the top left cell of the body and the bottom right one.
 
         ---------------
-        The body is defined as the content of the table which belongs neither to
-        the index nor to the header.
-
-        It returns a list containing two lists of length two,each containing two numbers
-        which univocally identify a cell. The first number refers to the position
-        of the column to which the cell belongs, while the second one is the number of the row.
-        Examples:
-        - "A1" -> [0, 1]
-        - "Z3" -> [25, 3]
-        - "AA4" -> [26, 4]
+        For more details refer to header_coordinates docstring.
         """
         return [[self.header_coordinates[0][0], self.index_coordinates[0][1]],
                 [self.header_coordinates[1][0], self.index_coordinates[1][1]]]
 
     @property
-    def header(self):
+    def table_coordinates(self):
         """
-        Returns a list containing the names of the cells which constitute the header.
+        Finds the top left cell of the body and the bottom right one.
 
         ---------------
-        The form of the output is the following ["A1", "A2", "A3"]. The cells are
-        inserted by row.
+        For more details refer to header_coordinates docstring
         """
-        return self.cells(self.header_coordinates)
+        return [[self.index_coordinates[0][0], self.header_coordinates[0][1]],
+                [self.header_coordinates[1][0], self.index_coordinates[1][1]]]
+
+    @property
+    def header(self):
+        """
+        Returns a header object. It allows to access the header cells in various ways.
+        """
+        return SpreadsheetElement(self.header_coordinates)
 
     @property
     def index(self):
         """
-        Returns a list containing the names of the cells which constitute the index.
-
-        ---------------
-        The form of the output is the following ["A1", "A2", "A3"]. The cells are
-        inserted by row.
+        Returns a index object. It allows to access the index cells in various ways.
         """
-        return self.cells(self.index_coordinates)
+        return SpreadsheetElement(self.index_coordinates)
 
     @property
     def body(self):
         """
-        Returns a list containing the names of the cells which constitute the body.
-
-        ---------------
-        The form of the output is the following ["A1", "A2", "A3"]. The cells are
-        inserted by row.
+        Returns a body object. It allows to access the body cells in various ways.
         """
-        return self.cells(self.body_coordinates)
+        return SpreadsheetElement(self.body_coordinates)
 
     @property
     def table(self):
         """
-        Returns a list containing the names of the cells which constitute the table.
-
-        ---------------
-        The form of the output is the following ["A1", "A2", "A3"]. The cells are
-        inserted by row.
+        Returns a table object. It allows to access the table cells in various ways.
         """
-        cells = self.header.extend(self.body)
-        if self.keep_index:
-            return cells.extend(self.index)
-        return cells
+        return SpreadsheetElement(self.table_coordinates)
 
     # --------------------------------------------------------------------------
     # 1.2 - Main methods
@@ -246,7 +225,7 @@ class Spreadsheet:
             if col_index > self.body_coordinates[1][0]:
                 raise KeyError("A column you are trying to access is out of index")
             cells.extend(self.cells([[col_index, top_row],
-                                                  [col_index, end_row]]))
+                                     [col_index, end_row]]))
         return cells
 
     def row(self, key: Union[str, int, List, Tuple], include_index: bool=False):
@@ -464,6 +443,7 @@ class Spreadsheet:
     # --------------------------------
     # 2.3 - Methods used as building blocks in multiple parts of the class
     # --------------------------------
+    @classmethod
     def cells(self, coordinates: List[List]):
         """
         Returns the cells belonging to a rectangular portion of a spreadsheet.
@@ -489,13 +469,14 @@ class Spreadsheet:
 
         return cells
 
+    @classmethod
     def cells_range(self, coordinates: List[List]):
         """
         Returns a string in the form "A1:B2" given coordinates in the form
         [[0,1],[1,2]]
         """
         cell1 = self.letter_from_index(coordinates[0][0]) + str(coordinates[0][1])
-        cell2 = self.letter_from_index(coordinates[1][1]) + str(coordinates[1][1])
+        cell2 = self.letter_from_index(coordinates[1][0]) + str(coordinates[1][1])
         return cell1 + ":" + cell2
 
     @staticmethod
@@ -554,15 +535,11 @@ class Spreadsheet:
         """
         Print the attributes and properties for debugging
         """
-        print("Header coordinates:", self.header_coordinates)
-        print("Header cells:", self.header)
-        print()
-        print("Index coordinates:", self.index_coordinates)
-        print("Index cells:", self.index)
-        print()
-        print("Body coordinates:", self.body_coordinates)
-        print("Body cells:", self.body)
-        print()
-        print("Table cells:", self.table)
-        print()
-        print("Indexes depth:", self.indexes_depth)
+        elements = [self.header, self.index, self.body, self.table]
+        names = ["Header", "Index", "Body", "Table"]
+        for element, name in zip(elements, names):
+            print(name.capitalize())
+            print(element.cells)
+            print(element.coordinates)
+            print(element.cells_range)
+            print()
