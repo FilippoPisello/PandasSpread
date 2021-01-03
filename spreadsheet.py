@@ -31,7 +31,7 @@ class Spreadsheet:
     ----------------
     dataframe : pandas dataframe object (mandatory)
         Dataframe to be considered
-    keep_index : Bool, default=False
+    index : Bool, default=False
         If True, it is taken into account that the first column of the spreadsheet
         will be occupied by the index. All the dimensions will be adjusted as a
         consequence.
@@ -49,9 +49,9 @@ class Spreadsheet:
         for more details.
     """
 
-    def __init__(self, dataframe: pd.DataFrame, keep_index: bool=False, skip_rows: int=0,
-                 skip_columns: int=0, correct_lists: bool=False):
-        self.keep_index = keep_index
+    def __init__(self, dataframe: pd.DataFrame, index=False, skip_rows=0,
+                 skip_columns=0, correct_lists=False):
+        self.keep_index = index
         self.df = dataframe
         self.skip_rows = skip_rows
         self.skip_cols = skip_columns

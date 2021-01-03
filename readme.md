@@ -74,7 +74,7 @@ And on the following additional packages:
 The class intakes five arguments:
 - **dataframe** : pandas data frame object (mandatory)
   - The pandas data frame to be considered.
-- **keep_index** : Bool, default=False
+- **index** : Bool, default=False
   - If True, it is taken into account that the first column of the spreadsheet will be occupied by the index. All the dimensions will be adjusted as consequence.
 - **skip_rows**: int, default=0
   - The number of rows which should be left empty at the top of the spreadsheet. Referring to excel row numbering, the table content starts at skip_rows + 1. If 0, content starts at row 1.
@@ -201,4 +201,4 @@ There are no developments planned for the near future. However, some minor cosme
 ## 4.2. Potential developments
 The developments mentioned now are instead potential evolutions of the class which are not planned to be implemented in the immediate future:
 - **Clarification of the index role:**
-  - At the moment, the behavior of the index can be considered unclear in case the user chooses _"False"_ for the class argument _"keep_index"_. What happens is that the real column index (in pandas _"df.index"_) is ignored, as it is supposed that it will not be included in the spreadsheet. Instead, _self.index_ will return the cells of the first column of the data frame. This is because it often happens in databases that the first column of the data frame contains the record keys.
+  - At the moment, the behavior of the index can be considered unclear in case the user chooses _"False"_ for the class argument _"index"_. What happens is that the real column index (in pandas _"df.index"_) is ignored, as it is supposed that it will not be included in the spreadsheet. Instead, _self.index_ will return the cells of the first column of the data frame. This is because it often happens in databases that the first column of the data frame contains the record keys.
