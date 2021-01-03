@@ -147,7 +147,7 @@ class Spreadsheet:
         The form of the output is the following ["A1", "A2", "A3"]. The cells are
         inserted by row.
         """
-        return self.cells_range(self.header_coordinates)
+        return self.cells(self.header_coordinates)
 
     @property
     def index(self):
@@ -158,7 +158,7 @@ class Spreadsheet:
         The form of the output is the following ["A1", "A2", "A3"]. The cells are
         inserted by row.
         """
-        return self.cells_range(self.index_coordinates)
+        return self.cells(self.index_coordinates)
 
     @property
     def body(self):
@@ -169,7 +169,7 @@ class Spreadsheet:
         The form of the output is the following ["A1", "A2", "A3"]. The cells are
         inserted by row.
         """
-        return self.cells_range(self.body_coordinates)
+        return self.cells(self.body_coordinates)
 
     @property
     def table(self):
@@ -245,7 +245,7 @@ class Spreadsheet:
         for col_index in int_index:
             if col_index > self.body_coordinates[1][0]:
                 raise KeyError("A column you are trying to access is out of index")
-            cells.extend(self.cells_range([[col_index, top_row],
+            cells.extend(self.cells([[col_index, top_row],
                                                   [col_index, end_row]]))
         return cells
 
@@ -299,7 +299,7 @@ class Spreadsheet:
         for row_index in int_index:
             if row_index > self.body_coordinates[1][1]:
                 raise KeyError("A row you are trying to access is out of index")
-            cells.extend(self.cells_range([[left_col, row_index],
+            cells.extend(self.cells([[left_col, row_index],
                                                   [right_col, row_index]]))
         return cells
 
@@ -464,7 +464,7 @@ class Spreadsheet:
     # --------------------------------
     # 2.3 - Methods used as building blocks in multiple parts of the class
     # --------------------------------
-    def cells_range(self, coordinates_list: List[List]):
+    def cells(self, coordinates: List[List]):
         """
         Returns the cells belonging to a rectangular portion of a spreadsheet.
 
@@ -480,14 +480,23 @@ class Spreadsheet:
         Example:
         - If [[0,1],[1,2]] is provided, the output will be [A1, B1, A2, B2]
         """
-        starting_letter_pos, starting_number = coordinates_list[0]
-        ending_letter_pos, ending_number = coordinates_list[1]
+        starting_letter_pos, starting_number = coordinates[0]
+        ending_letter_pos, ending_number = coordinates[1]
 
         cells = [self.letter_from_index(letter) + str(number)
                  for number in range(starting_number, ending_number + 1)
                  for letter in range(starting_letter_pos, ending_letter_pos + 1)]
 
         return cells
+
+    def cells_range(self, coordinates: List[List]):
+        """
+        Returns a string in the form "A1:B2" given coordinates in the form
+        [[0,1],[1,2]]
+        """
+        cell1 = self.letter_from_index(coordinates[0][0]) + str(coordinates[0][1])
+        cell2 = self.letter_from_index(coordinates[1][1]) + str(coordinates[1][1])
+        return cell1 + ":" + cell2
 
     @staticmethod
     def letter_from_index(letter_position: int) -> str:
