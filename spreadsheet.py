@@ -491,11 +491,11 @@ class Spreadsheet:
         if len(spreadsheet_letter) == 1:
             return units_letter
 
-        hundreds_letter = string.ascii_uppercase.index(spreadsheet_letter[-2])
+        hundreds_letter = string.ascii_uppercase.index(spreadsheet_letter[-2]) + 1
         if len(spreadsheet_letter) == 2:
             return 26 * hundreds_letter + units_letter
 
-        thousands_letter = string.ascii_uppercase.index(spreadsheet_letter[-3])
+        thousands_letter = string.ascii_uppercase.index(spreadsheet_letter[-3]) + 1
         if len(spreadsheet_letter) == 3:
             return 26 ** 2 * thousands_letter + 26 * hundreds_letter + units_letter
 
