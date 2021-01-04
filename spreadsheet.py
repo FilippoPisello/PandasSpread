@@ -1,4 +1,4 @@
-# Created by Filippo Pisello
+# Author: Filippo Pisello
 import string
 from typing import List, Union, Tuple
 
@@ -80,88 +80,61 @@ class Spreadsheet:
         indexes = [self.df.index, self.df.columns]
         return [len(x[0]) if isinstance(x, pd.MultiIndex) else 1 for x in indexes]
 
+    # --------------------------------
+    # 1.1.1 - Coordinates Properties
+    # The following are coordinates of the four parts of a spreadsheet.
+    # Coordinates are in this form: [[int, int], [int, int]].
+    # The two pairs of int univocally identify a cell: they are respectively the
+    # row index and the column number. The two cells identified are the top left
+    # and the bottom right one.
+    # --------------------------------
     @property
     def header_coordinates(self):
-        """
-        Finds the top left cell of the header and the bottom right one.
-
-        ---------------
-        Returns a list containing two lists of length two, each containing two numbers
-        which univocally identify a cell. The first number refers to the position
-        of the column to which the cell belongs, while the second one is the number of the row.
-        Examples:
-        - "A1" -> [0, 1]
-        - "Z3" -> [25, 3]
-        - "AA4" -> [26, 4]
-        """
         starting_letter_pos = self.indexes_depth[0] * self.keep_index + self.skip_cols
         starting_number = self.skip_rows + 1
         ending_letter_pos = starting_letter_pos - 1 + self.df.shape[1]
         ending_number = starting_number - 1 + self.indexes_depth[1]
-        return [[starting_letter_pos, starting_number], [ending_letter_pos, ending_number]]
+        return [[starting_letter_pos, starting_number],
+                [ending_letter_pos, ending_number]]
 
     @property
     def index_coordinates(self):
-        """
-        Finds the top left cell of the index and the bottom right one.
-
-        ---------------
-        For more details refer to header_coordinates docstring
-        """
         starting_letter_pos = self.skip_cols
         starting_number = self.indexes_depth[1] + 1 + self.skip_rows
         ending_letter_pos = starting_letter_pos - 1 + self.indexes_depth[0]
         ending_number = starting_number - 1 + self.df.shape[0]
-        return [[starting_letter_pos, starting_number], [ending_letter_pos, ending_number]]
+        return [[starting_letter_pos, starting_number],
+                [ending_letter_pos, ending_number]]
 
     @property
     def body_coordinates(self):
-        """
-        Finds the top left cell of the body and the bottom right one.
-
-        ---------------
-        For more details refer to header_coordinates docstring.
-        """
         return [[self.header_coordinates[0][0], self.index_coordinates[0][1]],
                 [self.header_coordinates[1][0], self.index_coordinates[1][1]]]
 
     @property
     def table_coordinates(self):
-        """
-        Finds the top left cell of the body and the bottom right one.
-
-        ---------------
-        For more details refer to header_coordinates docstring
-        """
         return [[self.index_coordinates[0][0], self.header_coordinates[0][1]],
                 [self.header_coordinates[1][0], self.index_coordinates[1][1]]]
 
+    # --------------------------------
+    # 1.1.2 - Spreadsheet Elements Objects Properties
+    # The following are objects which describe the four parts of a spreadsheet
+    # and allow to access their properties. Look at SpreadsheetElement doc for more.
+    # --------------------------------
     @property
     def header(self):
-        """
-        Returns a header object. It allows to access the header cells in various ways.
-        """
         return SpreadsheetElement(self.header_coordinates)
 
     @property
     def index(self):
-        """
-        Returns a index object. It allows to access the index cells in various ways.
-        """
         return SpreadsheetElement(self.index_coordinates)
 
     @property
     def body(self):
-        """
-        Returns a body object. It allows to access the body cells in various ways.
-        """
         return SpreadsheetElement(self.body_coordinates)
 
     @property
     def table(self):
-        """
-        Returns a table object. It allows to access the table cells in various ways.
-        """
         return SpreadsheetElement(self.table_coordinates)
 
     # --------------------------------------------------------------------------

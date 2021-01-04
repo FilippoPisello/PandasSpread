@@ -11,9 +11,12 @@
   - [3.4. Methods](#34-methods)
     - [3.4.1. column()](#341-column)
     - [3.4.2. row()](#342-row)
-- [4. Roadmap for future developments](#4-roadmap-for-future-developments)
-  - [4.1. Planned developments](#41-planned-developments)
-  - [4.2. Potential developments](#42-potential-developments)
+- [4. SpreadsheetElement class](#4-spreadsheetelement-class)
+  - [4.1. Arguments](#41-arguments)
+  - [4.2. Properties](#42-properties)
+- [5. Roadmap for future developments](#5-roadmap-for-future-developments)
+  - [5.1. Planned developments](#51-planned-developments)
+  - [5.2. Potential developments](#52-potential-developments)
 
 # 1. Overview
 The Spreadsheet class is meant to identify which cells of a spreadsheet would be occupied by a pandas data frame based on its dimensions. The correspondence is carried out for the whole data frame and its sub elements, like the header, index and body.
@@ -32,11 +35,17 @@ The Spreadsheet class should serve as a shared base for the modules to export pa
 The logic behind this choice is that a pandas data frame occupies the same cells in a spreadsheet regardless of what the spreadsheet software is.
 
 ## 1.2. Code structure
+The project's code is contained in two files:
+- **spreadsheet.py**: the main file which contains the Spreadsheet class. Except for point 4, all the indications in this guide refer to this file and class.
+- **spreadsheet_element.py**: file which contains the support class SpredsheetElement. More on this class at point 4.
+
 The code is designed to convey a hierarchical division of the class' methods. Different code portions are introduced by comment blocks which are made of two compact lines of "#" having a number in between.
 
 The sections are structured as follows:
 - **Part 1**: elements with external scope
   - **Part 1.1**: class properties
+    - **Part 1.1.1**: subparts' coordinates
+    - **Part 1.1.2**: subparts' objects
   - **Part 1.2**: main class methods. These are meant to be accessed by the user
 - **Part 2**: worker methods
   - **Part 2.1**: methods used in attributes
@@ -57,7 +66,7 @@ Some terms should be unambiguously defined. Concerning the spreadsheet table ele
 
 Concerning columns and rows:
 - **Column letter/Column label**: the letter(s) used in the spreadsheet system to uniquely identify the columns. The most leftward column is labeled with "A", followed by "B" and so on. After "Z" it follows "AA", then "AB" and so on. After "ZZ" it follows "AAA", then "AAB" and so on.
-- **Column index**: the position in space of a column. Following python conventions, the indexing is carried out from left to right, starting from 0. Thus the most leftward column has index 0.
+- **Column index**: the position in space of a column. Following python conventions, the indexing is carried out from left to right, starting from 0. Thus the most leftward column has index 0. It follows that column "A" is equal to column 0.
 - **Row number**: the number used in the spreadsheet system to uniquely identify the rows. The top row has number 1.
 
 # 2. Required packages
@@ -100,19 +109,19 @@ The spreadsheet object has eight properties:
   - The coordinates of the cells at the top left and bottom right of the index, described by a list containing two lists of int of lent two. Each of the sub-lists identifies a spreadsheet cell. The first number is the column index, while the second one is the row number.
 - **self.body_coordinates**: [[int, int], [int, int]]
   - The coordinates of the cells at the top left and bottom right of the body, described by a list containing two lists of int of lent two. Each of the sub-lists identifies a spreadsheet cell. The first number is the column index, while the second one is the row number.
-- **self.header**: [str, ...]
-  - A list of str where each str is a cell belonging to the header. Each cell is a pair formed by the column letter and the row number, like "A1".
-- **self.index**: [str, ...]
-  - A list of str where each str is a cell belonging to the index. Each cell is a pair formed by the column letter and the row number, like "A1".
-- **self.body**: [str, ...]
-  - A list of str where each str is a cell belonging to the body. Each cell is a pair formed by the column letter and the row number, like "A1".
-- **self.table**: [str, ...]
-  - A list of str where each str is a cell belonging to the table. Each cell is a pair formed by the column letter and the row number, like "A1".
+- **self.header**: SpreadsheetElement object
+  - An object which allows to access various header's properties. More on these objects at point 4.
+- **self.index**: SpreadsheetElement object
+  - An object which allows to access various index's properties. More on these objects at point 4.
+- **self.body**: SpreadsheetElement object
+  - An object which allows to access various body's properties. More on these objects at point 4.
+- **self.table**: SpreadsheetElement object
+  - An object which allows to access various table's properties. More on these objects at point 4.
 
 These can be found in tier 1.1 in the code base.
 
 ## 3.4. Methods
-This section just includes the methods which are meant to be accessed by the user, thus of tier 1.2. For further info on the methods of lower tiers, please consult their docstrings.
+This section just includes the methods which are meant to be accessed by the user, thus of tier 1.2. For further info on the methods of lower tiers, please consult directly their docstrings.
 
 ### 3.4.1. column()
 Returns the list of cells making up a column in the form ["A1", "A2", ...].
@@ -192,13 +201,29 @@ The object spreadsheet is created.
 - spreadsheet.row("2:3", False) --> ["A2", "B2", "C2", "A3", "B3", "C3"]
 - spreadsheet.row([1, 2], False) --> ["A2", "B2", "C2", "A3", "B3", "C3"]
 
-# 4. Roadmap for future developments
-## 4.1. Planned developments
-There are no developments planned for the near future. However, some minor cosmetic changes might be released soon:
-- Cleaning up the docstrings of the sub-methods which are quite long
-- Finding a better way to order the methods as the tier system is too strict and frail
+# 4. SpreadsheetElement class
+The SpreadSheet element class is a support class created to limit the code repetitions. It proved to be necessary as the number of representations for the various spreadsheet parts grew in number. This class can be found in the dedicated file "spreadsheet_element.py".
 
-## 4.2. Potential developments
+A SpreadsheetElement object describes a portion of a spreadsheet. In this class, an object of this type is created for each of the four table parts mentioned in the overview: header, index, body, table.
+## 4.1. Arguments
+The class intakes two arguments:
+- coordinates: [[int, int], [int, int]], (mandatory)
+  - A system of coordinates which identifies a rectangle of cells. It is a list containing two lists of length two, each containing two numbers which univocally identify a cell. The two numbers are respectively the row index and the column number. The two cells are the top left and bottom right one.
+- style: None or Style object, default=None
+  - An object of the adequate type can be passed depending on the spreadsheet subclass used. For CustomExcel, one should use and ExcelStyle object. If None, no action will be taken.
+
+## 4.2. Properties
+The class has two properties:
+- cells: [str, ..., str]
+  - The ist of cells making up the object in the form ["A1", "A2"]
+- cells_range: str
+  - A str in this form "A1:B3". Where "A1" is the top left cell of the object while "B3" is the bottom right.
+
+# 5. Roadmap for future developments
+## 5.1. Planned developments
+There are no developments planned for the near future.
+
+## 5.2. Potential developments
 The developments mentioned now are instead potential evolutions of the class which are not planned to be implemented in the immediate future:
 - **Clarification of the index role:**
   - At the moment, the behavior of the index can be considered unclear in case the user chooses _"False"_ for the class argument _"index"_. What happens is that the real column index (in pandas _"df.index"_) is ignored, as it is supposed that it will not be included in the spreadsheet. Instead, _self.index_ will return the cells of the first column of the data frame. This is because it often happens in databases that the first column of the data frame contains the record keys.
