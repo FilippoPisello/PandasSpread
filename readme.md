@@ -22,10 +22,10 @@
 The Spreadsheet class is meant to identify which cells of a spreadsheet would be occupied by a pandas data frame based on its dimensions. The correspondence is carried out for the whole data frame and its sub elements, like the header, index and body.
 
 It follows a simple example. Consider the following table to be a 1x2 pandas data frame:
-||Name|Type|
-|---|---|---|
-|1|Python|Programming Language|
-|2|Word|Text Editor|
+|     | Name   | Type                 |
+| --- | ------ | -------------------- |
+| 1   | Python | Programming Language |
+| 2   | Word   | Text Editor          |
 
 By populating the sheet from the top left and keeping the index, the table would occupy the cells ["B1", "C1", "A2", "B2", "C2", "A3", "B3", "C3"]. In particular, ["B1", "C1"] would be the header, ["A2", "A3"] the index and ["B2", "C2", "B3", "C3"] the body.
 
@@ -85,10 +85,9 @@ The class intakes five arguments:
   - The pandas data frame to be considered.
 - **index** : Bool, default=False
   - If True, it is taken into account that the first column of the spreadsheet will be occupied by the index. All the dimensions will be adjusted as consequence.
-- **skip_rows**: int, default=0
-  - The number of rows which should be left empty at the top of the spreadsheet. Referring to excel row numbering, the table content starts at skip_rows + 1. If 0, content starts at row 1.
-- **skip_cols**: int, default=0
-  - The number of columns which should be left empty at the left of the spreadsheet. Referring to excel column labelling, the table content starts at letter with index skip_cols. If 0, content starts at column "A".
+- **starting_cell**: str, default="A1"
+  - The cell that represents the top left corner of the data frame in the
+  spreadsheet. No cells above or at the left of this cell will be mapped.
 - **correct_lists**: Bool, default=False
   - If True, the lists stored as the data frame entries are modified to be more readable in the traditional spreadsheet softwares. This happens in four ways. (1) Empty lists are replaced by missing values. (2) Missing values are removed from within the lists. (3) Lists of len 1 are replaced by the single element they contain. (4) Lists are replaced by str formed by their elements separated by commas.
 
@@ -148,10 +147,10 @@ Note that when evaluating a bit of a str key, the match with the spreadsheet let
 **Examples**
 
 Consider the following table to be the pandas data frame passed in the constructor with all the parameters left to default values:
-|Foo|Bar|Baz|Qux|
-|---|---|---|---|
-|1|2|3|4|
-|5|6|7|8|
+| Foo | Bar | Baz | Qux |
+| --- | --- | --- | --- |
+| 1   | 2   | 3   | 4   |
+| 5   | 6   | 7   | 8   |
 
 The object spreadsheet is created.
 - spreadsheet.column("A", True) --> ["A1", "A2", "A3"]
@@ -186,11 +185,11 @@ The row can be identified using its numeric index or its spreadsheet number, whe
 **Examples**
 
 Consider the following table to be the pandas data frame passed in the constructor with all the parameters left to default values:
-|Foo|Bar|Baz|
-|---|---|---|
-|1|2|3|
-|5|6|7|
-|8|9|10|
+| Foo | Bar | Baz |
+| --- | --- | --- |
+| 1   | 2   | 3   |
+| 5   | 6   | 7   |
+| 8   | 9   | 10  |
 
 The object spreadsheet is created.
 - spreadsheet.row("2", True) --> ["A2", "B2", "C2", "D2"]

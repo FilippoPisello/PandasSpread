@@ -37,26 +37,21 @@ class Spreadsheet:
         If True, it is taken into account that the first column of the spreadsheet
         will be occupied by the index. All the dimensions will be adjusted as a
         consequence.
-    skip_rows: int, default=0
-        The number of rows which should be left empty at the top of the spreadsheet.
-        Referring to excel row numbering, the table content starts at skip_rows + 1.
-        If 0 content start at row 1.
-    skip_cols: int, default=0
-        The number of columns which should be left empty at the left of the spreadsheet.
-        Referring to excel column labelling, the table content starts at letter with
-        index skip_cols. If 0, content starts at column "A".
+    starting_cell: str, default="A1"
+        The cell that represents the top left corner of the data frame in the
+        spreadsheet. No cells above or at the left of this cell will be 
+        mapped. 
     correct_lists: Bool, default=False
         If True, the lists stored as the dataframe entries are modified to be more
         readable in the traditional spreadsheet softwares. Type help(correct_lists_for_export)
         for more details.
     """
 
-    def __init__(self, dataframe: pd.DataFrame, index=False, skip_rows=0,
-                 skip_columns=0, correct_lists=False):
+    def __init__(self, dataframe: pd.DataFrame, index=False, starting_cell="A1",
+                 correct_lists=False):
         self.keep_index = index
         self.df = dataframe
-        self.skip_rows = skip_rows
-        self.skip_cols = skip_columns
+        self.skip_rows, self.skip_cols = self._find_skipped(starting_cell)
 
         if correct_lists:
             for column in self.df:
@@ -288,6 +283,18 @@ class Spreadsheet:
                 for character in ["[", "]", "'"]:
                     element = element.replace(character, "")
         return element
+
+    def _find_skipped(self, cell: str) -> List[int]:
+        """
+        Returns a list of len two for the number of columns and rows to skip
+        given starting cell
+        """
+        first_number_index = [char.isdigit() for char in cell].index(True)
+
+        skip_cols = int(cell[first_number_index:]) - 1
+        skip_rows = self.index_from_letter(cell[:first_number_index])
+
+        return [skip_rows, skip_cols]
 
     # --------------------------------
     # 2.2 - Chain of methods used for the row/column methods in 1.2
