@@ -7,6 +7,7 @@ import numpy as np
 
 from spreadsheet_element import SpreadsheetElement
 
+
 class Spreadsheet:
     """
     Class to represent a pandas dataframe to be loaded into a spreadsheet.
@@ -39,16 +40,21 @@ class Spreadsheet:
         consequence.
     starting_cell: str, default="A1"
         The cell that represents the top left corner of the data frame in the
-        spreadsheet. No cells above or at the left of this cell will be 
-        mapped. 
+        spreadsheet. No cells above or at the left of this cell will be
+        mapped.
     correct_lists: Bool, default=False
         If True, the lists stored as the dataframe entries are modified to be more
-        readable in the traditional spreadsheet softwares. Type help(correct_lists_for_export)
-        for more details.
+        readable in the traditional spreadsheet softwares. ù
+        Type help(correct_lists_for_export) for more details.
     """
 
-    def __init__(self, dataframe: pd.DataFrame, index=False, starting_cell="A1",
-                 correct_lists=False):
+    def __init__(
+        self,
+        dataframe: pd.DataFrame,
+        index=False,
+        starting_cell="A1",
+        correct_lists=False,
+    ):
         self.keep_index = index
         self.df = dataframe
         self.skip_rows, self.skip_cols = self._find_skipped(starting_cell)
@@ -89,8 +95,10 @@ class Spreadsheet:
         starting_number = self.skip_rows + 1
         ending_letter_pos = starting_letter_pos - 1 + self.df.shape[1]
         ending_number = starting_number - 1 + self.indexes_depth[1]
-        return [[starting_letter_pos, starting_number],
-                [ending_letter_pos, ending_number]]
+        return [
+            [starting_letter_pos, starting_number],
+            [ending_letter_pos, ending_number],
+        ]
 
     @property
     def index_coordinates(self):
@@ -98,18 +106,24 @@ class Spreadsheet:
         starting_number = self.indexes_depth[1] + 1 + self.skip_rows
         ending_letter_pos = starting_letter_pos - 1 + self.indexes_depth[0]
         ending_number = starting_number - 1 + self.df.shape[0]
-        return [[starting_letter_pos, starting_number],
-                [ending_letter_pos, ending_number]]
+        return [
+            [starting_letter_pos, starting_number],
+            [ending_letter_pos, ending_number],
+        ]
 
     @property
     def body_coordinates(self):
-        return [[self.header_coordinates[0][0], self.index_coordinates[0][1]],
-                [self.header_coordinates[1][0], self.index_coordinates[1][1]]]
+        return [
+            [self.header_coordinates[0][0], self.index_coordinates[0][1]],
+            [self.header_coordinates[1][0], self.index_coordinates[1][1]],
+        ]
 
     @property
     def table_coordinates(self):
-        return [[self.index_coordinates[0][0], self.header_coordinates[0][1]],
-                [self.header_coordinates[1][0], self.index_coordinates[1][1]]]
+        return [
+            [self.index_coordinates[0][0], self.header_coordinates[0][1]],
+            [self.header_coordinates[1][0], self.index_coordinates[1][1]],
+        ]
 
     # --------------------------------
     # 1.1.2 - Spreadsheet Elements Objects Properties
@@ -136,7 +150,7 @@ class Spreadsheet:
     # 1.2 - Main methods
     # Methods which are designed and meant to be accessed by the user.
     # --------------------------------------------------------------------------
-    def column(self, key: Union[str, int, List, Tuple], include_header: bool=False):
+    def column(self, key: Union[str, int, List, Tuple], include_header: bool = False):
         """
         Returns the set of cells contained in the column whose key is provided
 
@@ -192,11 +206,10 @@ class Spreadsheet:
         for col_index in int_index:
             if col_index > self.body_coordinates[1][0]:
                 raise KeyError("A column you are trying to access is out of index")
-            cells.extend(self.cells([[col_index, top_row],
-                                     [col_index, end_row]]))
+            cells.extend(self.cells([[col_index, top_row], [col_index, end_row]]))
         return cells
 
-    def row(self, key: Union[str, int, List, Tuple], include_index: bool=False):
+    def row(self, key: Union[str, int, List, Tuple], include_index: bool = False):
         """
         Returns the set of cells contained in the row whose key is provided
 
@@ -240,14 +253,16 @@ class Spreadsheet:
         # From row index in int for to corresponding cells
         cells = []
         # The starting and ending col do not depend on the rows chosen
-        left_col = self.skip_cols + (self.indexes_depth[0] * (not include_index)) * self.keep_index
+        left_col = (
+            self.skip_cols
+            + (self.indexes_depth[0] * (not include_index)) * self.keep_index
+        )
         right_col = self.body_coordinates[1][0]
         # Loop to populate the cells list
         for row_index in int_index:
             if row_index > self.body_coordinates[1][1]:
                 raise KeyError("A row you are trying to access is out of index")
-            cells.extend(self.cells([[left_col, row_index],
-                                                  [right_col, row_index]]))
+            cells.extend(self.cells([[left_col, row_index], [right_col, row_index]]))
         return cells
 
     # --------------------------------------------------------------------------
@@ -361,10 +376,16 @@ class Spreadsheet:
 
                 # Inputs of type "X:X:X" are not accepted
                 if len(bit) > 2:
-                    raise ValueError("The column key cannot have two colons without a comma in between")
+                    raise ValueError(
+                        "The column key cannot have two colons without a comma in between"
+                    )
 
-                output.extend(range(self._str_index_to_int(bit[0], columns),
-                                    self._str_index_to_int(bit[1], columns) + 1))
+                output.extend(
+                    range(
+                        self._str_index_to_int(bit[0], columns),
+                        self._str_index_to_int(bit[1], columns) + 1,
+                    )
+                )
             else:
                 output.append(self._str_index_to_int(bit, columns))
         return output
@@ -443,9 +464,11 @@ class Spreadsheet:
         starting_letter_pos, starting_number = coordinates[0]
         ending_letter_pos, ending_number = coordinates[1]
 
-        cells = [self.letter_from_index(letter) + str(number)
-                 for number in range(starting_number, ending_number + 1)
-                 for letter in range(starting_letter_pos, ending_letter_pos + 1)]
+        cells = [
+            self.letter_from_index(letter) + str(number)
+            for number in range(starting_number, ending_number + 1)
+            for letter in range(starting_letter_pos, ending_letter_pos + 1)
+        ]
 
         return cells
 
@@ -474,12 +497,16 @@ class Spreadsheet:
         if letter_position <= 25:
             return units_letter
 
-        hundreds_letter = string.ascii_uppercase[((letter_position - 26) % (26 ** 2)) // 26]
-        if letter_position <= (26**2 + 25):
+        hundreds_letter = string.ascii_uppercase[
+            ((letter_position - 26) % (26 ** 2)) // 26
+        ]
+        if letter_position <= (26 ** 2 + 25):
             return hundreds_letter + units_letter
 
-        thousands_letter = string.ascii_uppercase[(letter_position - 26**2 - 26) // 26**2]
-        if letter_position <= (26**3 + 26**2 + 25):
+        thousands_letter = string.ascii_uppercase[
+            (letter_position - 26 ** 2 - 26) // 26 ** 2
+        ]
+        if letter_position <= (26 ** 3 + 26 ** 2 + 25):
             return thousands_letter + hundreds_letter + units_letter
 
         raise ValueError("The program does not handle indexes past 18 277 yet")

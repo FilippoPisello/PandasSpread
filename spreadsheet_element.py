@@ -1,6 +1,7 @@
 # Author: Filippo Pisello
 from typing import List
 
+
 class SpreadsheetElement:
     """
     Class to represent subportions of a spreadsheet in different ways.
@@ -25,6 +26,7 @@ class SpreadsheetElement:
         subclass used. For CustomExcel, one should use and ExcelStyle object. If
         None, no action will be taken.
     """
+
     def __init__(self, coordinates: List[List], style=None):
         self.coordinates = coordinates
         self.style = style
@@ -35,6 +37,7 @@ class SpreadsheetElement:
         Returns list of cells making up the object in the form ["A1", "A2"].
         """
         from spreadsheet import Spreadsheet
+
         return Spreadsheet.cells(self.coordinates)
 
     @property
@@ -44,4 +47,5 @@ class SpreadsheetElement:
         object, in the form "A1:B3".
         """
         from spreadsheet import Spreadsheet
+
         return Spreadsheet.cells_range(self.coordinates)
