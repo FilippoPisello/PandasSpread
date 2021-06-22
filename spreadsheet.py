@@ -301,13 +301,15 @@ class Spreadsheet:
 
     def _find_skipped(self, cell: str) -> List[int]:
         """
-        Returns a list of len two for the number of columns and rows to skip
-        given starting cell
+        Returns a list of int of len two. These are respectively the number of
+        rows and columns to skip given the starting cell.
         """
         first_number_index = [char.isdigit() for char in cell].index(True)
 
-        skip_cols = int(cell[first_number_index:]) - 1
-        skip_rows = self.index_from_letter(cell[:first_number_index])
+        # Find rows to skip from the numeric part of the cell name
+        skip_rows = int(cell[first_number_index:]) - 1
+        # Find columns to skip from the letter part of the cell name
+        skip_cols = self.index_from_letter(cell[:first_number_index])
 
         return [skip_rows, skip_cols]
 
