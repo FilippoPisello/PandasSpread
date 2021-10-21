@@ -32,36 +32,31 @@ class Spreadsheet:
 
     Arguments
     ----------------
-    dataframe : pandas dataframe object (mandatory)
+    dataframe: pandas dataframe object (mandatory)
         Dataframe to be considered
-    index : Bool, default=False
+    index: Bool, default=False
         If True, it is taken into account that the first column of the spreadsheet
         will be occupied by the index. All the dimensions will be adjusted as a
         consequence.
-    starting_cell: str, default="A1"
-        The cell that represents the top left corner of the data frame in the
-        spreadsheet. No cells above or at the left of this cell will be
-        mapped.
-    correct_lists: Bool, default=False
-        If True, the lists stored as the dataframe entries are modified to be more
-        readable in the traditional spreadsheet softwares. ù
-        Type help(correct_lists_for_export) for more details.
+    skip_rows: int, default=0
+        The number of rows to skip - left empty - at the top of the spreadsheet.
+        Data will be placed starting from row skip_rows + 1.
+    skip_columns: int, default=0
+        The number of columns to skip - left empty- at the left of the spreadsheet.
+        Data will be placed starting from column skip_columns + 1.
     """
 
     def __init__(
         self,
         dataframe: pd.DataFrame,
-        index=False,
-        starting_cell="A1",
-        correct_lists=False,
+        keep_index: bool = False,
+        skip_rows: int = 0,
+        skip_columns: int = 0,
     ):
-        self.keep_index = index
+        self.keep_index = keep_index
         self.df = dataframe
-        self.skip_rows, self.skip_cols = self._find_skipped(starting_cell)
-
-        if correct_lists:
-            for column in self.df:
-                self.df[column] = self.df[column].apply(self.correct_lists_for_export)
+        self.skip_rows = skip_rows
+        self.skip_cols = skip_columns
 
     # --------------------------------------------------------------------------
     # 1.1 - Properties
@@ -270,36 +265,7 @@ class Spreadsheet:
     # --------------------------------------------------------------------------
     # 2.1 - Methods used in attributes
     # --------------------------------
-    @staticmethod
-    def correct_lists_for_export(element):
-        """
-        Makes the lists contained in the table more adapt to be viewed in excel.
-
-        -------------------------
-        This function must be passed to the columns through the apply method. Lists
-        are "corrected" in four ways:
-        - If they contain missing values, these get removed since they would be
-        exported as the string 'nan'.
-        - If the list appearing as entry is empty, it is substituted by a missing
-        value.
-        - If the list contains only one element, the list is subsituted by that
-        element.
-        - If the list has multiple elements, they will appear as strings separated
-        by a comma.
-        """
-        if isinstance(element, list):
-            element = [i for i in element if i is not np.nan]
-            if not element:
-                element = np.nan
-            elif len(element) == 1:
-                element = element[0]
-            else:
-                element = str(element)
-                for character in ["[", "]", "'"]:
-                    element = element.replace(character, "")
-        return element
-
-    def _find_skipped(self, cell: str) -> List[int]:
+    def _find_skipped(self, cell: str) -> list[int]:
         """
         Returns a list of int of len two. These are respectively the number of
         rows and columns to skip given the starting cell.
