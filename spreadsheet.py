@@ -1,11 +1,11 @@
-# Author: Filippo Pisello
-import string
-from typing import List, Union, Tuple
+"""Main class to represent a Spreadsheet object"""
+from typing import Union
 
 import pandas as pd
-import numpy as np
 
-from spreadsheet_element import SpreadsheetElement
+from components.spreadsheet_element import SpreadsheetElement
+from components.custom_types import CoordinatesPair
+import components.operations as operations
 
 
 class Spreadsheet:
@@ -63,10 +63,10 @@ class Spreadsheet:
     # These capture object features which are likely to be accessed by the user.
     # --------------------------------------------------------------------------
     @property
-    def indexes_depth(self):
+    def indexes_depth(self) -> tuple[int, int]:
         """
-        Returns a list containing the number of multilevels for index and columns
-        of the pandas dataframe used as input.
+        Return a tuple of length two, made of the number of multilevels for
+        index and columns of the input data frame.
 
         ---------------
         Takes a pandas dataframe and returns a list of len two containing the
@@ -74,7 +74,7 @@ class Spreadsheet:
         is simple the associated dimension is 1. Same is true for columns.
         """
         indexes = [self.df.index, self.df.columns]
-        return [len(x[0]) if isinstance(x, pd.MultiIndex) else 1 for x in indexes]
+        return tuple(len(x[0]) if isinstance(x, pd.MultiIndex) else 1 for x in indexes)
 
     # --------------------------------
     # 1.1.1 - Coordinates Properties
@@ -85,39 +85,39 @@ class Spreadsheet:
     # and the bottom right one.
     # --------------------------------
     @property
-    def header_coordinates(self):
+    def header_coordinates(self) -> CoordinatesPair:
         starting_letter_pos = self.indexes_depth[0] * self.keep_index + self.skip_cols
         starting_number = self.skip_rows + 1
         ending_letter_pos = starting_letter_pos - 1 + self.df.shape[1]
         ending_number = starting_number - 1 + self.indexes_depth[1]
         return [
-            [starting_letter_pos, starting_number],
-            [ending_letter_pos, ending_number],
+            (starting_letter_pos, starting_number),
+            (ending_letter_pos, ending_number),
         ]
 
     @property
-    def index_coordinates(self):
+    def index_coordinates(self) -> CoordinatesPair:
         starting_letter_pos = self.skip_cols
         starting_number = self.indexes_depth[1] + 1 + self.skip_rows
         ending_letter_pos = starting_letter_pos - 1 + self.indexes_depth[0]
         ending_number = starting_number - 1 + self.df.shape[0]
         return [
-            [starting_letter_pos, starting_number],
-            [ending_letter_pos, ending_number],
+            (starting_letter_pos, starting_number),
+            (ending_letter_pos, ending_number),
         ]
 
     @property
-    def body_coordinates(self):
+    def body_coordinates(self) -> CoordinatesPair:
         return [
-            [self.header_coordinates[0][0], self.index_coordinates[0][1]],
-            [self.header_coordinates[1][0], self.index_coordinates[1][1]],
+            (self.header_coordinates[0][0], self.index_coordinates[0][1]),
+            (self.header_coordinates[1][0], self.index_coordinates[1][1]),
         ]
 
     @property
-    def table_coordinates(self):
+    def table_coordinates(self) -> CoordinatesPair:
         return [
-            [self.index_coordinates[0][0], self.header_coordinates[0][1]],
-            [self.header_coordinates[1][0], self.index_coordinates[1][1]],
+            (self.index_coordinates[0][0], self.header_coordinates[0][1]),
+            (self.header_coordinates[1][0], self.index_coordinates[1][1]),
         ]
 
     # --------------------------------
@@ -126,26 +126,26 @@ class Spreadsheet:
     # and allow to access their properties. Look at SpreadsheetElement doc for more.
     # --------------------------------
     @property
-    def header(self):
+    def header(self) -> SpreadsheetElement:
         return SpreadsheetElement(self.header_coordinates)
 
     @property
-    def index(self):
+    def index(self) -> SpreadsheetElement:
         return SpreadsheetElement(self.index_coordinates)
 
     @property
-    def body(self):
+    def body(self) -> SpreadsheetElement:
         return SpreadsheetElement(self.body_coordinates)
 
     @property
-    def table(self):
+    def table(self) -> SpreadsheetElement:
         return SpreadsheetElement(self.table_coordinates)
 
     # --------------------------------------------------------------------------
     # 1.2 - Main methods
     # Methods which are designed and meant to be accessed by the user.
     # --------------------------------------------------------------------------
-    def column(self, key: Union[str, int, List, Tuple], include_header: bool = False):
+    def column(self, key: Union[str, int, list, tuple], include_header: bool = False):
         """
         Returns the set of cells contained in the column whose key is provided
 
@@ -201,10 +201,12 @@ class Spreadsheet:
         for col_index in int_index:
             if col_index > self.body_coordinates[1][0]:
                 raise KeyError("A column you are trying to access is out of index")
-            cells.extend(self.cells([[col_index, top_row], [col_index, end_row]]))
+            cells.extend(
+                operations.cells_rectangle([[col_index, top_row], [col_index, end_row]])
+            )
         return cells
 
-    def row(self, key: Union[str, int, List, Tuple], include_index: bool = False):
+    def row(self, key: Union[str, int, list, tuple], include_index: bool = False):
         """
         Returns the set of cells contained in the row whose key is provided
 
@@ -257,7 +259,11 @@ class Spreadsheet:
         for row_index in int_index:
             if row_index > self.body_coordinates[1][1]:
                 raise KeyError("A row you are trying to access is out of index")
-            cells.extend(self.cells([[left_col, row_index], [right_col, row_index]]))
+            cells.extend(
+                operations.cells_rectangle(
+                    [[left_col, row_index], [right_col, row_index]]
+                )
+            )
         return cells
 
     # --------------------------------------------------------------------------
@@ -275,7 +281,7 @@ class Spreadsheet:
         # Find rows to skip from the numeric part of the cell name
         skip_rows = int(cell[first_number_index:]) - 1
         # Find columns to skip from the letter part of the cell name
-        skip_cols = self.index_from_letter(cell[:first_number_index])
+        skip_cols = operations.index_from_letter(cell[:first_number_index])
 
         return [skip_rows, skip_cols]
 
@@ -283,7 +289,7 @@ class Spreadsheet:
     # 2.2 - Chain of methods used for the row/column methods in 1.2
     # --------------------------------
     @staticmethod
-    def _input_as_list(input_, unwanted_type=None) -> Union[List, Tuple]:
+    def _input_as_list(input_, unwanted_type=None) -> Union[list, tuple]:
         """
         Returns a list containing input, if input's type is not list or tuple.
         Otherwise returns input.
@@ -304,7 +310,7 @@ class Spreadsheet:
             return [input_]
         return input_
 
-    def _str_key_to_int(self, str_key: str, columns=True) -> List[int]:
+    def _str_key_to_int(self, str_key: str, columns=True) -> list[int]:
         """
         Returns a list of integers given a key of type str to individuate column(s)
         or row(s).
@@ -399,7 +405,7 @@ class Spreadsheet:
                 return self.df.columns.to_list().index(single_item_str)
             # If fails it runs the conversion using col str
             except ValueError:
-                return self.index_from_letter(single_item_str)
+                return operations.index_from_letter(single_item_str)
 
         # Case for index to be interpreted as row
         else:
@@ -408,113 +414,3 @@ class Spreadsheet:
             except ValueError as e:
                 msg = "The row key provided is not convertible to int: "
                 raise ValueError(msg + single_item_str) from e
-
-    # --------------------------------
-    # 2.3 - Methods used as building blocks in multiple parts of the class
-    # --------------------------------
-    @classmethod
-    def cells(self, coordinates: List[List]):
-        """
-        Returns the cells belonging to a rectangular portion of a spreadsheet.
-
-        ---------------
-        Returns a list containing pairs in the form "A1". These correspond to the
-        cells contained in a rectangular portion of spreadsheet delimited by a top
-        left corner cell and a bottom right corner cell.
-
-        The coordinates provided must be in the form
-        [[TL_letter_position, TL_row],[BR_letter_position, BR_row]]
-        where TL stands for top left and BR for bottom right.
-
-        Example:
-        - If [[0,1],[1,2]] is provided, the output will be [A1, B1, A2, B2]
-        """
-        starting_letter_pos, starting_number = coordinates[0]
-        ending_letter_pos, ending_number = coordinates[1]
-
-        cells = [
-            self.letter_from_index(letter) + str(number)
-            for number in range(starting_number, ending_number + 1)
-            for letter in range(starting_letter_pos, ending_letter_pos + 1)
-        ]
-
-        return cells
-
-    @classmethod
-    def cells_range(self, coordinates: List[List]):
-        """
-        Returns a string in the form "A1:B2" given coordinates in the form
-        [[0,1],[1,2]]
-        """
-        cell1 = self.letter_from_index(coordinates[0][0]) + str(coordinates[0][1])
-        cell2 = self.letter_from_index(coordinates[1][0]) + str(coordinates[1][1])
-        return cell1 + ":" + cell2
-
-    @staticmethod
-    def letter_from_index(letter_position: int) -> str:
-        """
-        Returns the spreadsheet column's letter given index; ex: 0 -> "A", 26 -> "AA"
-
-        ------------------
-        The index should be interpreted as the place where the column is
-        counting from left to right. The count starts from 0, which corresponds
-        to "A", 1 to "B" and so on. The current program handles the indexes up to
-        18 277, corresponding to column "ZZZ".
-        """
-        units_letter = string.ascii_uppercase[letter_position % 26]
-        if letter_position <= 25:
-            return units_letter
-
-        hundreds_letter = string.ascii_uppercase[
-            ((letter_position - 26) % (26 ** 2)) // 26
-        ]
-        if letter_position <= (26 ** 2 + 25):
-            return hundreds_letter + units_letter
-
-        thousands_letter = string.ascii_uppercase[
-            (letter_position - 26 ** 2 - 26) // 26 ** 2
-        ]
-        if letter_position <= (26 ** 3 + 26 ** 2 + 25):
-            return thousands_letter + hundreds_letter + units_letter
-
-        raise ValueError("The program does not handle indexes past 18 277 yet")
-
-    @staticmethod
-    def index_from_letter(spreadsheet_letter: str) -> int:
-        """
-        Returns the col index given spreadsheet letter; ex: "A" -> 0, "AA" -> 26
-
-        ------------------
-        The spreadsheet letter is the column label used in spreadsheets to identify
-        the column. The first one is "A" which corresponds to 0. The current program
-        handles the columns up to "ZZZ", corresponding to number 18 277.
-        """
-        units_letter = string.ascii_uppercase.index(spreadsheet_letter[-1])
-        if len(spreadsheet_letter) == 1:
-            return units_letter
-
-        hundreds_letter = string.ascii_uppercase.index(spreadsheet_letter[-2]) + 1
-        if len(spreadsheet_letter) == 2:
-            return 26 * hundreds_letter + units_letter
-
-        thousands_letter = string.ascii_uppercase.index(spreadsheet_letter[-3]) + 1
-        if len(spreadsheet_letter) == 3:
-            return 26 ** 2 * thousands_letter + 26 * hundreds_letter + units_letter
-
-        raise ValueError("The program does not handle column letters past 'ZZZ' yet")
-
-    # -------------------------------------------------------------------------
-    # D - Methods useful for debugging
-    # -------------------------------------------------------------------------
-    def _print_dimensions(self):
-        """
-        Print the attributes and properties for debugging
-        """
-        elements = [self.header, self.index, self.body, self.table]
-        names = ["Header", "Index", "Body", "Table"]
-        for element, name in zip(elements, names):
-            print(name.capitalize())
-            print(element.cells)
-            print(element.coordinates)
-            print(element.cells_range)
-            print()

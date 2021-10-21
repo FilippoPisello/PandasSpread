@@ -1,5 +1,6 @@
-# Author: Filippo Pisello
-from typing import List
+"""Contain the class to describe a portion of a spreadsheet"""
+from components.custom_types import Cells, CellsRange, CoordinatesPair
+import components.operations as operations
 
 
 class SpreadsheetElement:
@@ -21,31 +22,23 @@ class SpreadsheetElement:
         which univocally identify a cell. The two numbers are respectively the
         row index and the column number. The two cells are the top left and
         bottom right one.
-    style: None or style object, default=None
-        An object of the adequate type can be passed depending on the spreadsheet
-        subclass used. For CustomExcel, one should use and ExcelStyle object. If
-        None, no action will be taken.
     """
 
-    def __init__(self, coordinates: List[List], style=None):
+    def __init__(self, coordinates: CoordinatesPair):
         self.coordinates = coordinates
-        self.style = style
 
     @property
-    def cells(self) -> List[str]:
+    def cells(self) -> Cells:
         """
         Returns list of cells making up the object in the form ["A1", "A2"].
         """
-        from spreadsheet import Spreadsheet
-
-        return Spreadsheet.cells(self.coordinates)
+        return operations.cells_rectangle(self.coordinates)
 
     @property
-    def cells_range(self) -> str:
+    def cells_range(self) -> CellsRange:
         """
         Returns a str giving info on the top left and bottom right cells of the
         object, in the form "A1:B3".
         """
-        from spreadsheet import Spreadsheet
 
-        return Spreadsheet.cells_range(self.coordinates)
+        return operations.cells_range(self.coordinates)
