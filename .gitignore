@@ -1,0 +1,16 @@
+__init__.py
+__pycache__/spreadsheet.cpython-38.pyc
+.vscode/.ropeproject/config.py
+.vscode/.ropeproject/objectdb
+Spreadsheet test.ipynb
+.ipynb_checkpoints/Spreadsheet test-checkpoint.ipynb
+__pycache__/spreadsheet_element.cpython-38.pyc
+__pycache__/spreadsheet_element.cpython-39.pyc
+__pycache__/spreadsheet.cpython-39.pyc
+.vscode/settings.json
+tests/__pycache__/test_spreadsheet.cpython-39.pyc
+components/__pycache__/__init__.cpython-39.pyc
+components/__pycache__/custom_types.cpython-39.pyc
+components/__pycache__/operations.cpython-39.pyc
+components/__pycache__/spreadsheet_element.cpython-39.pyc
+__pycache__/custom_types.cpython-39.pyc
