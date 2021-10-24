@@ -5,20 +5,20 @@ import components.operations as operations
 
 class SpreadsheetElement:
     """
-    Class to represent subportions of a spreadsheet in different ways.
+    Class to describe a rectangular portion of a spreadsheet.
 
     ---------------
-    The class intakes as its main argument a pair of coordinates made of int
-    indexes. It then allows to access various information about the table part.
+    Identify a rectangular part of a spreadsheet by providing a pair of
+    coordinates that identify that top left and bottom right corner of the
+    rectangle.
 
-    The idea is to be able to pass at will from the coordinates view, to the
-    cells and cells_range ones. These all describe in different ways the same
-    concept, which is the expected position of some data in a spreadsheet.
+    The object is useful to access the various forms in which the rectangle
+    of cells can be identified (cells, coordinates, cells_range).
 
     Arguments
     ----------------
-    coordinates: list in the form [[int, int], [int, int]], (mandatory)
-        A list containing two lists of length two, each containing two numbers
+    coordinates: list in the form [(int, int), (int, int)], (mandatory)
+        A list containing two tuples of length two, each containing two numbers
         which univocally identify a cell. The two numbers are respectively the
         row index and the column number. The two cells are the top left and
         bottom right one.
