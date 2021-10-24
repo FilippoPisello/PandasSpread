@@ -43,3 +43,18 @@ class TestSpreadsheet(TestCase):
             self.t1_skipcol.body.cells,
             ("B2", "C2", "D2", "B3", "C3", "D3", "B4", "C4", "D4"),
         )
+
+    def test_index(self):
+        """Test that index is correctly identified"""
+        self.assertIsNone(self.t1.index)
+        self.assertEqual(
+            self.t1_index.index.cells,
+            ("A2", "A3", "A4"),
+        )
+
+    def test_first_column(self):
+        """Test that first column is correctly identified"""
+        self.assertEqual(self.t1.first_column.cells, ("A2", "A3", "A4"))
+        self.assertEqual(self.t1_index.first_column.cells, ("B2", "B3", "B4"))
+        self.assertEqual(self.t1_skiprow.first_column.cells, ("A3", "A4", "A5"))
+        self.assertEqual(self.t1_skipcol.first_column.cells, ("B2", "B3", "B4"))

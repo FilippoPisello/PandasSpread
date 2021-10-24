@@ -14,3 +14,5 @@ components/__pycache__/custom_types.cpython-39.pyc
 components/__pycache__/operations.cpython-39.pyc
 components/__pycache__/spreadsheet_element.cpython-39.pyc
 __pycache__/custom_types.cpython-39.pyc
+components/spreadsheet_element.py
+tests/__pycache__/test_spreadsheet.cpython-310.pyc

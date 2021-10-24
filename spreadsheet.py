@@ -3,9 +3,9 @@ from typing import Union
 
 import pandas as pd
 
-from components.spreadsheet_element import SpreadsheetElement
-from components.custom_types import CoordinatesPair
 import components.operations as operations
+from components.custom_types import CoordinatesPair
+from components.spreadsheet_element import SpreadsheetElement
 
 
 class Spreadsheet:
@@ -28,7 +28,6 @@ class Spreadsheet:
 
     If no rows or columns are skipped, it is assumed that the content is loaded
     into the spreadsheet starting from the top left cell, A1.
-
 
     Arguments
     ----------------
@@ -60,7 +59,6 @@ class Spreadsheet:
 
     # --------------------------------------------------------------------------
     # 1.1 - Properties
-    # These capture object features which are likely to be accessed by the user.
     # --------------------------------------------------------------------------
     @property
     def indexes_depth(self) -> tuple[int, int]:
@@ -96,7 +94,9 @@ class Spreadsheet:
         ]
 
     @property
-    def index_coordinates(self) -> CoordinatesPair:
+    def index_coordinates(self) -> Union[CoordinatesPair, None]:
+        if not self.keep_index:
+            return None
         starting_letter_pos = self.skip_cols
         starting_number = self.indexes_depth[1] + 1 + self.skip_rows
         ending_letter_pos = starting_letter_pos - 1 + self.indexes_depth[0]
@@ -109,8 +109,8 @@ class Spreadsheet:
     @property
     def body_coordinates(self) -> CoordinatesPair:
         return [
-            (self.header_coordinates[0][0], self.index_coordinates[0][1]),
-            (self.header_coordinates[1][0], self.index_coordinates[1][1]),
+            (self.header_coordinates[0][0], self.first_column_coordinates[0][1]),
+            (self.header_coordinates[1][0], self.first_column_coordinates[1][1]),
         ]
 
     @property
@@ -118,6 +118,16 @@ class Spreadsheet:
         return [
             (self.index_coordinates[0][0], self.header_coordinates[0][1]),
             (self.header_coordinates[1][0], self.index_coordinates[1][1]),
+        ]
+
+    @property
+    def first_column_coordinates(self) -> CoordinatesPair:
+        column_letter = self.skip_cols + self.indexes_depth[0] * self.keep_index
+        starting_number = self.indexes_depth[1] + 1 + self.skip_rows
+        ending_number = starting_number - 1 + self.df.shape[0]
+        return [
+            (column_letter, starting_number),
+            (column_letter, ending_number),
         ]
 
     # --------------------------------
@@ -130,7 +140,9 @@ class Spreadsheet:
         return SpreadsheetElement(self.header_coordinates)
 
     @property
-    def index(self) -> SpreadsheetElement:
+    def index(self) -> Union[SpreadsheetElement, None]:
+        if not self.keep_index:
+            return None
         return SpreadsheetElement(self.index_coordinates)
 
     @property
@@ -140,6 +152,10 @@ class Spreadsheet:
     @property
     def table(self) -> SpreadsheetElement:
         return SpreadsheetElement(self.table_coordinates)
+
+    @property
+    def first_column(self) -> SpreadsheetElement:
+        return SpreadsheetElement(self.first_column_coordinates)
 
     # --------------------------------------------------------------------------
     # 1.2 - Main methods
@@ -201,9 +217,9 @@ class Spreadsheet:
         for col_index in int_index:
             if col_index > self.body_coordinates[1][0]:
                 raise KeyError("A column you are trying to access is out of index")
-            cells.extend(
-                operations.cells_rectangle([[col_index, top_row], [col_index, end_row]])
-            )
+
+            coordinates_pair = ([col_index, top_row], [col_index, end_row])
+            cells.extend(operations.cells_rectangle(coordinates_pair))
         return cells
 
     def row(self, key: Union[str, int, list, tuple], include_index: bool = False):
@@ -259,11 +275,9 @@ class Spreadsheet:
         for row_index in int_index:
             if row_index > self.body_coordinates[1][1]:
                 raise KeyError("A row you are trying to access is out of index")
-            cells.extend(
-                operations.cells_rectangle(
-                    [[left_col, row_index], [right_col, row_index]]
-                )
-            )
+
+            coordinates_pair = ([left_col, row_index], [right_col, row_index])
+            cells.extend(operations.cells_rectangle(coordinates_pair))
         return cells
 
     # --------------------------------------------------------------------------
