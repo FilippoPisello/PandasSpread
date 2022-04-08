@@ -2,7 +2,7 @@
 are independent from the spreadsheet instance."""
 import string
 
-from components.custom_types import Cells, CellsRange, CoordinatesPair
+from .custom_types import Cells, CellsRange, CoordinatesPair
 
 
 def cells_rectangle(coordinates: CoordinatesPair) -> Cells:
@@ -57,14 +57,14 @@ def letter_from_index(letter_position: int) -> str:
     if letter_position <= 25:
         return units_letter
 
-    hundreds_letter = string.ascii_uppercase[((letter_position - 26) % (26 ** 2)) // 26]
-    if letter_position <= (26 ** 2 + 25):
+    hundreds_letter = string.ascii_uppercase[((letter_position - 26) % (26**2)) // 26]
+    if letter_position <= (26**2 + 25):
         return hundreds_letter + units_letter
 
     thousands_letter = string.ascii_uppercase[
-        (letter_position - 26 ** 2 - 26) // 26 ** 2
+        (letter_position - 26**2 - 26) // 26**2
     ]
-    if letter_position <= (26 ** 3 + 26 ** 2 + 25):
+    if letter_position <= (26**3 + 26**2 + 25):
         return thousands_letter + hundreds_letter + units_letter
 
     raise ValueError("The program does not handle indexes past 18 277 yet")
@@ -89,6 +89,6 @@ def index_from_letter(spreadsheet_letter: str) -> int:
 
     thousands_letter = string.ascii_uppercase.index(spreadsheet_letter[-3]) + 1
     if len(spreadsheet_letter) == 3:
-        return 26 ** 2 * thousands_letter + 26 * hundreds_letter + units_letter
+        return 26**2 * thousands_letter + 26 * hundreds_letter + units_letter
 
     raise ValueError("The program does not handle column letters past 'ZZZ' yet")

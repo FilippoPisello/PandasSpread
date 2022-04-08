@@ -3,9 +3,9 @@ from typing import Union
 
 import pandas as pd
 
-import components.operations as operations
-from components.custom_types import CoordinatesPair
-from components.spreadsheet_element import SpreadsheetElement
+from . import operations
+from .custom_types import CoordinatesPair
+from .spreadsheet_element import SpreadsheetElement
 
 
 class Spreadsheet:

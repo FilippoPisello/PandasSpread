@@ -2,7 +2,7 @@
 from unittest import TestCase
 
 import pandas as pd
-from spreadsheet import Spreadsheet
+from spreadpandas import Spreadsheet
 
 
 class TestSpreadsheet(TestCase):

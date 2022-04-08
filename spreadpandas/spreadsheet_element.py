@@ -1,6 +1,6 @@
 """Contain the class to describe a portion of a spreadsheet"""
-from components.custom_types import Cells, CellsRange, CoordinatesPair
-import components.operations as operations
+from . import operations
+from .custom_types import Cells, CellsRange, CoordinatesPair
 
 
 class SpreadsheetElement:
@@ -30,7 +30,7 @@ class SpreadsheetElement:
     @property
     def cells(self) -> Cells:
         """
-        Returns list of cells making up the object in the form ["A1", "A2"].
+        Returns tuple of cells making up the object in the form ("A1", "A2").
         """
         return operations.cells_rectangle(self.coordinates)
 
@@ -40,5 +40,4 @@ class SpreadsheetElement:
         Returns a str giving info on the top left and bottom right cells of the
         object, in the form "A1:B3".
         """
-
         return operations.cells_range(self.coordinates)
