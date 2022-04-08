@@ -1,4 +1,6 @@
 """Contain the class to describe a portion of a spreadsheet"""
+from __future__ import annotations
+
 from . import operations
 from .custom_types import Cells, CellsRange, CoordinatesPair
 

@@ -1,4 +1,6 @@
 """Test the correct functioning of the spreadsheet class"""
+from __future__ import annotations
+
 from unittest import TestCase
 
 import pandas as pd

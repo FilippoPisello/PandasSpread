@@ -1,5 +1,5 @@
 """Main class to represent a Spreadsheet object"""
-from typing import Union
+from __future__ import annotations
 
 import pandas as pd
 
@@ -94,7 +94,7 @@ class Spreadsheet:
         ]
 
     @property
-    def index_coordinates(self) -> Union[CoordinatesPair, None]:
+    def index_coordinates(self) -> CoordinatesPair | None:
         if not self.keep_index:
             return None
         starting_letter_pos = self.skip_cols
@@ -140,7 +140,7 @@ class Spreadsheet:
         return SpreadsheetElement(self.header_coordinates)
 
     @property
-    def index(self) -> Union[SpreadsheetElement, None]:
+    def index(self) -> SpreadsheetElement | None:
         if not self.keep_index:
             return None
         return SpreadsheetElement(self.index_coordinates)
@@ -161,7 +161,7 @@ class Spreadsheet:
     # 1.2 - Main methods
     # Methods which are designed and meant to be accessed by the user.
     # --------------------------------------------------------------------------
-    def column(self, key: Union[str, int, list, tuple], include_header: bool = False):
+    def column(self, key: str | int | list | tuple, include_header: bool = False):
         """
         Returns the set of cells contained in the column whose key is provided
 
@@ -222,7 +222,7 @@ class Spreadsheet:
             cells.extend(operations.cells_rectangle(coordinates_pair))
         return cells
 
-    def row(self, key: Union[str, int, list, tuple], include_index: bool = False):
+    def row(self, key: str | int | list | tuple, include_index: bool = False):
         """
         Returns the set of cells contained in the row whose key is provided
 
@@ -286,7 +286,7 @@ class Spreadsheet:
     # 2.1 - Chain of methods used for the row/column methods in 1.2
     # --------------------------------
     @staticmethod
-    def _input_as_list(input_, unwanted_type=None) -> Union[list, tuple]:
+    def _input_as_list(input_, unwanted_type=None) -> list | tuple:
         """
         Returns a list containing input, if input's type is not list or tuple.
         Otherwise returns input.

@@ -1,9 +1,10 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from typing import Union
 
 
 class IndexIdentifier(ABC):
-    def __init__(self, identifier: Union[int, str]):
+    def __init__(self, identifier: int | str):
         self.identifier = identifier
 
     @abstractmethod

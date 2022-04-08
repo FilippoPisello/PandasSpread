@@ -1,5 +1,7 @@
 """Contains functions carrying out operations over the spreadsheet which
 are independent from the spreadsheet instance."""
+from __future__ import annotations
+
 import string
 
 from .custom_types import Cells, CellsRange, CoordinatesPair
