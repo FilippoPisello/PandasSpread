@@ -19,3 +19,5 @@ tests/__pycache__/test_spreadsheet.cpython-310.pyc
 *.pyc
 *.ipynb
 venv/*
+.tox/*
+spreadpandas.egg-info/*
