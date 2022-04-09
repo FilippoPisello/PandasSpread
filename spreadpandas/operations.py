@@ -1,5 +1,13 @@
-"""Contains functions carrying out operations over the spreadsheet which
-are independent from the spreadsheet instance."""
+"""Functions translating positional information of spreadsheet's cells across
+several forms.
+
+The most basic notation is the coordinates system. Analogously to a cartesian
+plane, it identifies each cell of the spreadsheet through its position defined
+by a (x, y) pair. The origin is the cell 'A1', the top left corner, that
+corresponds to coordinates (0, 0). Moving left and downwards increase
+respectively the first and second coordinate. So that 'B1' is (1, 0) and
+'A2' is (0, 1).
+"""
 from __future__ import annotations
 
 import string
@@ -85,8 +93,11 @@ def cell_from_coordinates(coordinates: Coordinates) -> Cell:
 
 
 def row_number_from_index(row_index: int) -> str:
-    """Return the number that labels the row from its index. The convertion
+    """Return the number that labels the row given its index. The convertion
     simply consists in adding 1 and converting to string.
+
+    Spreadsheets label rows starting from 1, so that their number is 1 more
+    than its zero-indexed position.
 
     Parameters
     ----------
@@ -96,8 +107,7 @@ def row_number_from_index(row_index: int) -> str:
     Returns
     -------
     str
-        Label as conceived by spreadsheets to identify the row. The first row
-        is 1, so it is 1 far from the 0-indexed ordering.
+        Label as conceived by spreadsheets to identify the row.
     """
     if row_index < 0:
         raise ValueError(f"Negative values are not accepted: {row_index} was passed.")
