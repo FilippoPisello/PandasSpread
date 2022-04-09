@@ -1,4 +1,3 @@
-__init__.py
 __pycache__/spreadsheet.cpython-38.pyc
 .vscode/.ropeproject/config.py
 .vscode/.ropeproject/objectdb
@@ -21,3 +20,5 @@ tests/__pycache__/test_spreadsheet.cpython-310.pyc
 venv/*
 .tox/*
 spreadpandas.egg-info/*
+build/*
+dist/*
