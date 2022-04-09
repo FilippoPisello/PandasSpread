@@ -3,8 +3,8 @@ from __future__ import annotations
 
 from typing import Tuple
 
-Coordinate = Tuple[int, int]
-CoordinatesPair = Tuple[Coordinate, Coordinate]
+Coordinates = Tuple[int, int]
+CoordinatesPair = Tuple[Coordinates, Coordinates]
 Cell = str
 Cells = Tuple[Cell, ...]
 CellsRange = str
