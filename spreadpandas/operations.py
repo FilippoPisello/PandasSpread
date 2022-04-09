@@ -3,34 +3,47 @@ are independent from the spreadsheet instance."""
 from __future__ import annotations
 
 import string
+from itertools import product
 
-from .custom_types import Cells, CellsRange, CoordinatesPair
+from .custom_types import Cell, Cells, CellsRange, Coordinates, CoordinatesPair
 
 
-def cells_rectangle(coordinates: CoordinatesPair) -> Cells:
+def cells_rectangle(coordinates_pair: CoordinatesPair) -> Cells:
+    """Return a tuple listing the labels of the cells contained in a rectangular
+    portion of a spreadsheet.
+
+    The rectangle is identified by the coordinates of its top left and bottom
+    right corner cells.
+
+    Parameters
+    ----------
+    coordinates_pair : tuple[tuple[int, int], tuple[int, int]]
+        Tuple cotaining two coordinates, at their time represented as tuple
+        containing two integers. They identify respectively the top left and
+        bottom right cell of a rectangular portion of a spreadsheet.
+
+    Returns
+    -------
+    tuple[str, ...]
+        Tuple in the form ('A1', 'A2', ...).
+
+    Examples
+    -------
+    >>> from spreadpandas.operations import cells_rectangle
+    >>> coords_pair = ((0, 0), (1, 1))
+    >>> cells_rectangle(coords_pair)
+    ('A1', 'B1', 'A2', 'B2')
     """
-    Returns the cells belonging to a rectangular portion of a spreadsheet.
 
-    ---------------
-    Returns a list containing pairs in the form "A1". These correspond to the
-    cells contained in a rectangular portion of spreadsheet delimited by a top
-    left corner cell and a bottom right corner cell.
+    starting_letter_pos, starting_number = coordinates_pair[0]
+    ending_letter_pos, ending_number = coordinates_pair[1]
 
-    The coordinates provided must be in the form
-    [[TL_letter_position, TL_row],[BR_letter_position, BR_row]]
-    where TL stands for top left and BR for bottom right.
-
-    Example:
-    - If [[0,1],[1,2]] is provided, the output will be [A1, B1, A2, B2]
-    """
-    starting_letter_pos, starting_number = coordinates[0]
-    ending_letter_pos, ending_number = coordinates[1]
-
-    cells = tuple(
-        letter_from_index(letter) + str(number)
-        for number in range(starting_number, ending_number + 1)
-        for letter in range(starting_letter_pos, ending_letter_pos + 1)
+    prod = product(
+        range(starting_number, ending_number + 1),
+        range(starting_letter_pos, ending_letter_pos + 1),
     )
+
+    return tuple(cell_from_coordinates((letter, number)) for number, letter in prod)
 
 
 def cells_range(coordinates_pair: CoordinatesPair) -> CellsRange:

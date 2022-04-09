@@ -81,3 +81,24 @@ def test_cell_from_coordinates(coordinates, expected_cell_label):
 )
 def test_cells_range(coordinates_pair, expected_cells_range):
     assert operations.cells_range(coordinates_pair) == expected_cells_range
+
+
+@pytest.mark.parametrize(
+    "coordinates_pair, expected_cells",
+    [
+        (
+            ((0, 0), (1, 1)),
+            ("A1", "B1", "A2", "B2"),
+        ),
+        (
+            ((0, 0), (1, 2)),
+            ("A1", "B1", "A2", "B2", "A3", "B3"),
+        ),
+        (
+            ((0, 0), (2, 1)),
+            ("A1", "B1", "C1", "A2", "B2", "C2"),
+        ),
+    ],
+)
+def test_cells_rectangle(coordinates_pair, expected_cells):
+    assert operations.cells_rectangle(coordinates_pair) == expected_cells
