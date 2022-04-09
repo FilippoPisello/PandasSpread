@@ -6,7 +6,7 @@ import pandas as pd
 from .spreadsheet_element import SpreadsheetElement
 
 
-class Spreadsheet:
+class SpreadMap:
     """
     Class to represent a pandas dataframe to be loaded into a spreadsheet.
 
@@ -35,7 +35,7 @@ class Spreadsheet:
         skip_rows: int = 0,
         skip_columns: int = 0,
     ):
-        """Create a Spreadsheet object to get the dimensionality of a pandas
+        """Create a SpreadMap object to get the dimensionality of a pandas
         data frame when exported to a spreadsheet.
 
         Parameters

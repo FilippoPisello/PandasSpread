@@ -4,7 +4,7 @@ from __future__ import annotations
 from unittest import TestCase
 
 import pandas as pd
-from spreadpandas import Spreadsheet
+from spreadpandas import SpreadMap
 
 
 class TestSpreadsheet(TestCase):
@@ -16,11 +16,11 @@ class TestSpreadsheet(TestCase):
                 "C": [0, 1, 2],
             }
         )
-        self.t1 = Spreadsheet(df1)
-        self.t1_index = Spreadsheet(df1, keep_index=True)
-        self.t1_skiprow = Spreadsheet(df1, skip_rows=1)
-        self.t1_skipcol = Spreadsheet(df1, skip_columns=1)
-        self.t1_noheader = Spreadsheet(df1, keep_header=False)
+        self.t1 = SpreadMap(df1)
+        self.t1_index = SpreadMap(df1, keep_index=True)
+        self.t1_skiprow = SpreadMap(df1, skip_rows=1)
+        self.t1_skipcol = SpreadMap(df1, skip_columns=1)
+        self.t1_noheader = SpreadMap(df1, keep_header=False)
 
     def test_header(self):
         """Test that header cells are correctly identified"""

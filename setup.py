@@ -9,7 +9,7 @@ setup(
     description="Get the spreadsheet representation of a pandas data frame.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/FilippoPisello/PandasSpread",
+    url="https://github.com/FilippoPisello/SpreadPandas",
     author="Filippo Pisello",
     author_email="filippo.pisello@live.it",
     license="MIT",
