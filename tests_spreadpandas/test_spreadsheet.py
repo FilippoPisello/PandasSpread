@@ -20,6 +20,7 @@ class TestSpreadsheet(TestCase):
         self.t1_index = Spreadsheet(df1, keep_index=True)
         self.t1_skiprow = Spreadsheet(df1, skip_rows=1)
         self.t1_skipcol = Spreadsheet(df1, skip_columns=1)
+        self.t1_noheader = Spreadsheet(df1, keep_header=False)
 
     def test_header(self):
         """Test that header cells are correctly identified"""
@@ -27,6 +28,7 @@ class TestSpreadsheet(TestCase):
         self.assertEqual(self.t1_index.header.cells, ("B1", "C1", "D1"))
         self.assertEqual(self.t1_skiprow.header.cells, ("A2", "B2", "C2"))
         self.assertEqual(self.t1_skipcol.header.cells, ("B1", "C1", "D1"))
+        self.assertIsNone(self.t1_noheader.header)
 
     def test_body(self):
         """Test that body cells are correctly identified"""
@@ -45,6 +47,10 @@ class TestSpreadsheet(TestCase):
             self.t1_skipcol.body.cells,
             ("B2", "C2", "D2", "B3", "C3", "D3", "B4", "C4", "D4"),
         )
+        self.assertEqual(
+            self.t1_noheader.body.cells,
+            ("A1", "B1", "C1", "A2", "B2", "C2", "A3", "B3", "C3"),
+        )
 
     def test_index(self):
         """Test that index is correctly identified"""
@@ -54,9 +60,10 @@ class TestSpreadsheet(TestCase):
             ("A2", "A3", "A4"),
         )
 
-    def test_first_column(self):
-        """Test that first column is correctly identified"""
-        self.assertEqual(self.t1.first_column.cells, ("A2", "A3", "A4"))
-        self.assertEqual(self.t1_index.first_column.cells, ("B2", "B3", "B4"))
-        self.assertEqual(self.t1_skiprow.first_column.cells, ("A3", "A4", "A5"))
-        self.assertEqual(self.t1_skipcol.first_column.cells, ("B2", "B3", "B4"))
+    def test_table(self):
+        """Test that table is correctly identified"""
+        self.assertEqual(self.t1.table.cells_range, "A1:C4")
+        self.assertEqual(self.t1_index.table.cells_range, "A1:D4")
+        self.assertEqual(self.t1_skiprow.table.cells_range, "A2:C5")
+        self.assertEqual(self.t1_skipcol.table.cells_range, "B1:D4")
+        self.assertEqual(self.t1_noheader.table.cells_range, "A1:C3")
